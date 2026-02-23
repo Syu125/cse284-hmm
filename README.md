@@ -12,3 +12,7 @@ Implementation of HMM (Local Ancestry Inferene)
    - Purpose: contains samples for both populations.
 3. **VCF Slice**
    - The part of chromosome 22 that I'm going to test.
+
+TODO:
+
+- Write script to download the 3 files above (_did not push to git because files are too big_)
