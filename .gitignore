@@ -1,0 +1,15 @@
+# Ignore the data folder entirely
+data/
+
+# Ignore Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Ignore virtual environments if you have any in the folder
+.venv/
+env/
+venv/
+
+# Ignore OS-specific files
+.DS_Store
