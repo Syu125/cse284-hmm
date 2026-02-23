@@ -16,3 +16,4 @@ Implementation of HMM (Local Ancestry Inferene)
 TODO:
 
 - Write script to download the 3 files above (_did not push to git because files are too big_)
+- Check sample file
