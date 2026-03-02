@@ -14,3 +14,7 @@ URL="https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chr22.phase
 REGION="22:16000000-17000000"
 
 bcftools view "$URL" "$REGION" -O v -o chr22_slice.vcf
+
+# Add indexing to the VCF slice for later use.
+bgzip -c chr22_slice.vcf > chr22_slice.vcf.gz
+tabix -p vcf chr22_slice.vcf.gz
