@@ -16,35 +16,44 @@ def main():
     yri_freqs = get_allele_frequencies(vcf_path, pops['YRI'])
     ceu_freqs = get_allele_frequencies(vcf_path, pops['CEU'])
     
-    # 2. Pick a "Real" admixed sample (ASW)
-    asw_sample_id = pops['ASW'][0] # Take the first person in the ASW group
-    print(f"[-] Analyzing real sample: {asw_sample_id}")
+    # 2. Pick some admixed sample (ASW)
+    asw_sample_ids = pops['ASW'][:3] # Take the first person in the ASW group
+    print(f"[-] Analyzing real samples: {asw_sample_ids}")
     
     # 3. Collect their data
-    vcf = pysam.VariantFile(vcf_path)
-    common_pos = sorted(set(yri_freqs.keys()) & set(ceu_freqs.keys()))
-    
-    snp_positions = []
-    genotypes = []
-    
-    # Note: Using the linear scan logic we discussed to avoid index errors
-    common_set = set(common_pos)
-    for record in vcf:
-        if record.pos in common_set:
-            gt = record.samples[asw_sample_id].allele_indices
-            snp_positions.append(record.pos)
-            genotypes.append(gt)
+    for sample_id in asw_sample_ids:
+        print(f"\n[!] Processing individual: {sample_id}")
+        
+        # 3. Collect data for THIS specific sample
+        vcf = pysam.VariantFile(vcf_path)
+        common_pos = sorted(set(yri_freqs.keys()) & set(ceu_freqs.keys()))
+        common_set = set(common_pos)
+        
+        snp_positions = []
+        genotypes = []
+        
+        for record in vcf:
+            if record.pos in common_set:
+                # This line now gets a single string (sample_id)
+                gt = record.samples[sample_id].allele_indices
+                snp_positions.append(record.pos)
+                genotypes.append(gt)
 
-    # 4. Run Inference
-    emissions = EmissionModel(yri_freqs, ceu_freqs)
-    transitions = TransitionModel(generations=10) # ~10 generations is standard for ASW
-    engine = InferenceEngine(emissions, transitions)
-    
-    get_cm = lambda x: interpolate_genetic_position(x, phys, gen)
-    results = engine.run_viterbi(snp_positions, genotypes, get_cm)
-    
-    # 5. Visualize
-    plot_ancestry(snp_positions, results, save_path=f"ancestry_{asw_sample_id}.png")
+        # 4. Run Inference
+        emissions = EmissionModel(yri_freqs, ceu_freqs)
+        transitions = TransitionModel(generations=100)
+        engine = InferenceEngine(emissions, transitions)
+        
+        get_cm = lambda x: interpolate_genetic_position(x, phys, gen)
+        results = engine.run_viterbi(snp_positions, genotypes, get_cm)
+        
+        # 5. Global Stats
+        total = len(results)
+        yri_pct = (results.count("YRI") / total) * 100
+        print(f"    Summary: {yri_pct:.1f}% YRI | {100-yri_pct:.1f}% CEU")
+
+        # 6. Visualize - ensure unique filename per sample!
+        plot_ancestry(snp_positions, results, save_path=f"ancestry_{sample_id}.png")
 
 if __name__ == "__main__":
     main()
