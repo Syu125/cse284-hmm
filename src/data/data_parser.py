@@ -4,6 +4,7 @@ This module contains functions for parsing genetic data.
 
 import pandas as pd
 import pysam
+import numpy as np
 
 def get_population_dict(panel_file):
     df = pd.read_csv(panel_file, sep='\t')
@@ -53,3 +54,25 @@ def get_allele_frequencies(vcf_path, sample_list):
             freqs[record.pos] = counts[1] / total
             
     return freqs
+
+def get_genetic_map(map_file):
+    """
+    Reads the genetic map and returns arrays for interpolation.
+    The map file columns are usually: [phys_pos] [rate] [genetic_pos]
+    """
+    # sep='\s+' handles spaces or tabs in the text file
+    df = pd.read_csv(map_file, sep='\s+')
+    
+    # Column 0: Physical position (bp) - usually labeled 'pos'
+    # Column 2: Genetic position (cM) - usually labeled 'gpos'
+    phys_pos = df.iloc[:, 1].values
+    gen_pos = df.iloc[:, 3].values
+    
+    return phys_pos, gen_pos
+
+def interpolate_genetic_position(snp_pos, phys_arr, gen_arr):
+    """
+    Given a physical position from the VCF, find its cM value.
+    Since SNPs aren't always in the map, we use linear interpolation.
+    """
+    return np.interp(snp_pos, phys_arr, gen_arr)
