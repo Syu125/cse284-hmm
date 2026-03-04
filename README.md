@@ -111,6 +111,31 @@ python tests/test_data_loading.py
 ```
 Validates that data loading, frequency calculation, and emission model work correctly.
 
+### 6. Benchmark Against RFMix
+Export your HMM per-SNP predictions:
+```bash
+python eval/export_model_predictions.py --query-pop ASW --limit-samples 5 --out model_predictions_chr22.csv
+```
+
+Compare to an RFMix SNP-level CSV with matching columns:
+```bash
+python eval/compare_with_rfmix.py \
+	--model model_predictions_chr22.csv \
+	--rfmix rfmix_predictions_chr22.csv \
+	--sample-col sample_id \
+	--position-col position \
+	--model-label-col label \
+	--rfmix-label-col label \
+	--out rfmix_comparison_summary.csv
+```
+
+Expected columns in both files:
+- `sample_id`
+- `position`
+- `label` (supported labels: `YRI/CEU`, `AFR/EUR`, `0/1`)
+
+Summary outputs include concordance, Cohen's kappa, switches per Mb, median tract length, and global YRI percentage differences.
+
 ## Performance Notes
 
 - **Frequency Caching**: Use `utils.get_cached_frequencies()` to cache expensive VCF frequency calculations

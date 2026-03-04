@@ -1,6 +1,8 @@
 # Ignore the data folder entirely
 data/
 
+src/eval/predictions/
+
 # Ignore Python bytecode
 __pycache__/
 *.py[cod]
