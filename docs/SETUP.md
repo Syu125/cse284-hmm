@@ -54,18 +54,21 @@ python -c "import pysam; import pandas; print('All dependencies installed!')"
 
 Small slice of chromosome 22 (~50MB):
 ```bash
-cd data
-bash download_data_slice.sh
-cd ..
+bash data/prepare_data.sh slice
 ```
 
 ### Option B: Full Dataset
 
 Complete chromosome 22 (~1GB):
 ```bash
-cd data
-bash download_data_full22.sh
-cd ..
+bash data/prepare_data.sh full
+```
+
+### Option C: Both
+
+Download both slice and full versions:
+```bash
+bash data/prepare_data.sh all
 ```
 
 **Expected files after download:**

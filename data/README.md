@@ -1,30 +1,35 @@
 # Data Folder Structure
 
-This folder contains all data files for the HMM local ancestry inference project. Files are organized by type and processing stage.
+This folder contains all data files needed for the HMM local ancestry inference project. It uses a consolidated script for downloading and preparing data.
 
 ## Folder Structure
 
 ```
 data/
-├── raw/                    # Original downloaded files (do not modify)
-│   ├── vcf/               # Variant Call Format files
-│   ├── panels/            # Sample population assignments
-│   └── maps/              # Genetic position mappings
-├── processed/             # Preprocessed/sliced data ready for analysis
-├── scripts/               # Data preparation utilities
-└── cache/                 # Cached frequency files (auto-generated)
+├── prepare_data.sh          # Consolidated download & prep script
+├── raw/                     # Original downloaded files (do not modify)
+│   ├── vcf/                 # Variant Call Format files
+│   ├── panels/              # Sample population assignments
+│   └── maps/                # Genetic position mappings
+├── processed/               # Preprocessed/sliced data ready for analysis
+└── cache/                   # Cached frequency files (auto-generated)
 ```
 
 ## Quick Start
 
-### Option 1: Download Full Dataset (~1GB)
+### Option 1: Download Slice (Quick Testing)
 ```bash
-bash scripts/download_data_full22.sh
+bash prepare_data.sh slice    # ~50MB, 5-10 minutes
 ```
 
-### Option 2: Download Slice (~50MB, recommended for testing)
+### Option 2: Download Full Dataset (Production)
 ```bash
-bash scripts/download_data_slice.sh
+bash prepare_data.sh full     # ~1GB, 20-30 minutes
+```
+
+### Option 3: Download Both
+```bash
+bash prepare_data.sh all      # Downloads both slice and full
 ```
 
 ## Files

@@ -1,21 +1,20 @@
-# Model Evaluation & Benchmarking
+# Model Benchmarking & RFMix Comparison
 
-This folder contains tools and results for evaluating and comparing the HMM model against other methods (e.g., RFMix).
+This folder contains tools and results for evaluating and comparing the HMM model against RFMix.
 
 ## Folder Structure
 
 ```
-evaluation/
+benchmark/
 ├── export_model_predictions.py      # Export HMM predictions to CSV
 ├── compare_with_rfmix.py            # Compare against RFMix results
 ├── convert_rfmix_to_snp_csv.py      # Convert RFMix output format
 ├── metrics.py                       # Evaluation metrics  
+├── __init__.py
 ├── predictions/                     # HMM model predictions
-│   ├── model_predictions_chr22.csv
-│   └── model_slice_predictions.csv
+│   └── .gitkeep
 └── results/                         # Evaluation results
-    ├── rfmix_comparison_summary.csv
-    └── rfmix_slice_snp_level.csv
+    └── .gitkeep
 ```
 
 ## Quick Start

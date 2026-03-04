@@ -10,38 +10,25 @@ This project uses genetic data from the **1000 Genomes Project Phase 3** to trai
 
 ```
 data/
+├── prepare_data.sh          # Single consolidated data download script
 ├── raw/                     # Downloaded from 1000 Genomes (do not modify)
 │   ├── vcf/                 # Variant Call Format files
 │   ├── panels/              # Sample population assignments
-│   ├── maps/                # Genetic position mappings
-│   └── scripts/             # Download and prep scripts
+│   └── maps/                # Genetic position mappings
 ├── processed/               # Cleaned/sliced versions
-├── scripts/                 # Data preparation utilities
 └── cache/                   # Pickled frequency files
 ```
 
 ---
 
-## Source Data Files
+## Getting Data
 
-### 1. VCF Files (Variant Call Format)
+**Single script handles all downloads and preparation:**
 
-**Location**: `data/raw/vcf/`
-
-**File Options**:
-
-| File | Size | Variants | Description |
-|------|------|----------|-------------|
-| `chr22_slice.vcf` | ~50 MB | ~20k | Subset of chromosome 22 (fast testing) |
-| `ALL.chr22.phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.vcf.gz` | ~1 GB | ~490k | Full chromosome 22 for production |
-| `reference_yri_ceu_chr22.vcf.gz` | ~200 MB | Subset | Reference populations (YRI + CEU) |
-| `query_asw_chr22.vcf.gz` | ~100 MB | Subset | Query population (ASW samples) |
-
-**Download Command**:
 ```bash
-cd data
-bash scripts/download_data_slice.sh     # Quick version (~50MB)
-bash scripts/download_data_full22.sh    # Full version (~1GB)
+bash data/prepare_data.sh slice    # Download ~50MB slice (recommended for testing)
+bash data/prepare_data.sh full     # Download ~1GB full chromosome 22
+bash data/prepare_data.sh all      # Download both
 ```
 
 **Reference Source**:

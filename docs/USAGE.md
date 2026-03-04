@@ -2,17 +2,19 @@
 
 This guide explains how to run each analysis in sequence. Start from the root directory (`cse284-hmm/`).
 
-## Prerequisites
+## Quick Start
 
-1. Activate conda environment:
-   ```bash
-   conda activate hmm_env
-   ```
+All scripts should be run from the project root directory (`cse284-hmm/`).
 
-2. Ensure data is downloaded:
-   ```bash
-   ls data/raw/vcf/ | grep -E "\.vcf\.gz$"
-   ```
+### Step 0: Download Data (if not already done)
+
+```bash
+bash data/prepare_data.sh slice    # Download ~50MB slice (quick)
+# OR
+bash data/prepare_data.sh full     # Download ~1GB full dataset
+```
+
+### Step 1-4: Run Analyses
 
 ---
 
@@ -129,26 +131,25 @@ If you have RFMix results for comparison:
 ### Step 1: Export HMM Predictions
 
 ```bash
-cd src
-python ../evaluation/export_predictions.py \
-  --vcf ../data/raw/vcf/query_asw_chr22.vcf.gz \
-  --panel ../data/raw/panels/integrated_call_samples_v3.20130502.ALL.panel \
-  --map ../data/raw/maps/genetic_map_GRCh37_chr22.txt \
+python benchmark/export_model_predictions.py \
+  --vcf data/raw/vcf/query_asw_chr22.vcf.gz \
+  --panel data/raw/panels/integrated_call_samples_v3.20130502.ALL.panel \
+  --map data/raw/maps/genetic_map_GRCh37_chr22.txt \
   --query-pop ASW \
-  --out ../evaluation/predictions/model_predictions.csv
+  --out benchmark/predictions/model_predictions.csv
 ```
 
 ### Step 2: Compare with RFMix
 
 ```bash
-python ../evaluation/compare_with_rfmix.py \
-  --model ../evaluation/predictions/model_predictions.csv \
+python benchmark/compare_with_rfmix.py \
+  --model benchmark/predictions/model_predictions.csv \
   --rfmix rfmix_predictions_chr22.csv \
   --sample-col sample_id \
   --position-col position \
   --model-label-col label \
   --rfmix-label-col label \
-  --out ../evaluation/results/rfmix_comparison.csv
+  --out benchmark/results/rfmix_comparison.csv
 ```
 
 **Expected Output**: `rfmix_comparison.csv` with metrics:
