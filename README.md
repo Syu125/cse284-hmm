@@ -1,41 +1,138 @@
 # cse284-hmm
 
-Implementation of HMM (Local Ancestry Inferene)
+Implementation of HMM for Local Ancestry Inference using the Viterbi algorithm.
 
-Note: if you are using Windows, install WSL so that you can run Linux.
-- `wsl --install`
-- You may have to restart your computer. If so, after restarting, a terminal window will open automatically to finish the setup.
-- You will be asked to create a username and password.
-- After setup, you will automatically enter into WSL. To manually enter in the future, use `wsl -d Ubuntu`. To exit WSL, run `exit`.
-- Install miniconda in WSL: 
-   1. Download the installer script
-      `wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh`
-   2. Run the installer
-      `bash Miniconda3-latest-Linux-x86_64.sh`
-   3. Activate bash
-      `source ~/.bashrc`
+## Project Structure
 
-Create an environment:
-- In your root directory, run `conda env create -f environment.yml`
-= To activate the environment: run `conda activate hmm_env`
+```
+src/
+├── hmm/                          # Core HMM implementation
+│   ├── __init__.py
+│   ├── emission.py              # Emission probability model
+│   ├── transition.py            # Transition probability model  
+│   └── viterbi.py               # Viterbi algorithm for inference
+│
+├── data/                         # Data loading and parsing
+│   ├── __init__.py
+│   └── data_parser.py           # Functions for parsing VCF, panels, genetic maps
+│
+├── visualization/               # Visualization utilities
+│   ├── __init__.py
+│   └── karyogram.py             # Ancestry painting plots
+│
+├── tests/                        # Test and validation scripts
+│   ├── __init__.py
+│   └── test_data_loading.py     # Validate data loading and components
+│
+├── utils.py                      # Utility functions (caching, etc.)
+│
+├── sanity_check_na19625.py       # Quick test on a single sample  
+├── simulated_admixed.py          # Test on simulated admixed individual
+├── analyze_real.py               # Analyze real admixed samples
+└── population_analysis.py        # Population-level analysis
+```
 
-## Step 1: Get the Data
+## Key Components
 
-1000 Genomes Project Phase 3
+### HMM Model (`src/hmm/`)
+- **Emission Model**: Calculates `P(genotype | ancestry state)` using Hardy-Weinberg equilibrium
+- **Transition Model**: Calculates `P(state[i+1] | state[i])` based on genetic distance  
+- **Viterbi Algorithm**: Finds the most likely sequence of ancestry states
 
-1. **Genetic Map**
-   - Purpose: to consider the actual biological distances within the chromosome.
-2. **Sample Panel**
-   - Purpose: contains samples for both populations.
-3. **VCF Slice**
-   - The part of chromosome 22 that I'm going to test.
+### Data Handling (`src/data/`)
+- Parses 1000 Genomes VCF files
+- Extracts allele frequencies by population
+- Interpolates genetic map positions
+
+## Setup
+
+### Windows Users
+If using Windows, install WSL first:
+```bash
+wsl --install
+```
+
+### Dependencies
+Create conda environment:
+```bash
+cd cse284-hmm
+conda env create -f environment.yml
+conda activate hmm_env
+```
+
+## Getting Data
+
+The pipeline requires three data files from 1000 Genomes Phase 3:
+
+1. **Genetic Map** - Physical to genetic position mapping
+2. **Sample Panel** - Population assignments for samples (YRI, CEU, ASW, etc.)  
+3. **VCF File** - Genotypes for chromosome 22
 
 To download data:
-- `cd data` & `bash ./download_data.sh`
-TODO:
+```bash
+cd data/
+bash download_data_slice.sh    # Downloads limited slice (faster for testing)
+# OR
+bash download_data_full22.sh   # Downloads full chromosome 22
+```
 
-- Write script to download the 3 files above (_did not push to git because files are too big_)
-- Check sample file
+## Running Analyses
 
-## Notes on files:
-`precalculate_frequencies`: caches the frequencies so that runtime is quicker
+### 1. Sanity Check (Quick Start)
+```bash
+cd src
+python sanity_check_na19625.py
+```
+Tests the pipeline on a single known individual (NA19625).
+
+### 2. Simulated Analysis
+```bash
+python simulated_admixed.py
+```
+Creates a synthetic admixed individual and validates HMM detection of ancestry switches.
+
+### 3. Real Sample Analysis
+```bash
+python analyze_real.py
+```
+Analyzes a few real admixed (ASW) samples from the dataset.
+
+### 4. Population Analysis  
+```bash
+python population_analysis.py
+```
+Runs inference on all ASW samples and generates population-level statistics.
+
+### 5. Data Validation
+```bash
+python -m pytest tests/test_data_loading.py
+# OR
+python tests/test_data_loading.py
+```
+Validates that data loading, frequency calculation, and emission model work correctly.
+
+## Performance Notes
+
+- **Frequency Caching**: Use `utils.get_cached_frequencies()` to cache expensive VCF frequency calculations
+- **Memory**: Processing full chromosome 22 with all samples requires significant memory - start with the slice
+- **Runtime**: Full dataset analysis takes ~5-10 minutes depending on sample count
+
+## Implementation Details
+
+### Hardy-Weinberg Emission Model
+For allele frequency $p$ and genotype $(a_1, a_2)$:
+$$P(\text{genotype} | \text{state}) = P(a_1) \cdot P(a_2) = p^{a_1}(1-p)^{1-a_1} \cdot p^{a_2}(1-p)^{1-a_2}$$
+
+### Transition Model  
+States transition based on recombination rate:
+$$P(\text{switch}) = 1 - e^{-G \cdot d}$$
+where $G$ = generations since admixture and $d$ = genetic distance in Morgans
+
+### Viterbi
+Dynamic programming in log-space to find:
+$$\arg\max_{\text{path}} \prod_i P(g_i | s_i) \cdot P(s_i | s_{i-1})$$
+
+## References
+
+- Viterbi, A. (1967). Error bounds for convolutional codes and an asymptotically optimum decoding algorithm
+- The 1000 Genomes Project Consortium (2015). A global reference for human genetic variation

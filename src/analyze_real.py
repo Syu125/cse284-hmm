@@ -1,9 +1,22 @@
+"""
+Analyze real admixed individuals from the 1000 Genomes dataset.
+
+This script:
+1. Loads ASW (African ancestry in Southwest USA) samples
+2. Infers local ancestry for each individual using the HMM
+3. Prints summary statistics for each person
+4. Generates ancestry paintings for each individual
+
+ASW samples are known to have admixed ancestry, making them suitable
+for validating ancestry inference on real data.
+"""
+
 import pysam
 from data.data_parser import get_population_dict, get_allele_frequencies, get_genetic_map, interpolate_genetic_position
 from hmm.emission import EmissionModel
 from hmm.transition import TransitionModel
 from hmm.viterbi import InferenceEngine
-from visualization.karyogram import plot_ancestry
+from visualization import plot_ancestry
 
 def main():
     # 1. Setup

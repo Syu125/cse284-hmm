@@ -1,9 +1,21 @@
+"""
+Simulation test for HMM ancestry inference.
+
+This script:
+1. Creates a synthetic admixed individual by combining genotypes from real YRI and CEU samples
+2. Uses the midpoint to split ancestry (roughly 50/50)
+3. Runs Viterbi inference to recover the simulated ancestry pattern
+4. Checks if the HMM detects the switch point around the midpoint
+
+Use this to validate HMM performance on known ancestry boundaries.
+"""
+
 import pysam
 from data.data_parser import get_population_dict, get_allele_frequencies, get_genetic_map, interpolate_genetic_position
 from hmm.emission import EmissionModel
 from hmm.transition import TransitionModel
 from hmm.viterbi import InferenceEngine
-from visualization.karyogram import plot_ancestry
+from visualization import plot_ancestry
 
 
 def main():
@@ -19,11 +31,14 @@ def main():
     yri_freqs = get_allele_frequencies(vcf_path, pops['YRI'])
     ceu_freqs = get_allele_frequencies(vcf_path, pops['CEU'])
     
-    # 3. Create a "Hybrid" Person
-    # Let's grab one real YRI sample and one real CEU sample
-    vcf = pysam.VariantFile(vcf_path)
+    # 3. Create a "Hybrid" Person  
+    # Grab one real YRI sample and one real CEU sample
     yri_sample_id = pops['YRI'][0]
     ceu_sample_id = pops['CEU'][0]
+    
+    # Load VCF records into memory for efficient lookup
+    vcf = pysam.VariantFile(vcf_path)
+    vcf_records = {record.pos: record for record in vcf if record.pos in yri_freqs and record.pos in ceu_freqs}
     
     snp_positions = []
     hybrid_genotypes = []
@@ -35,10 +50,9 @@ def main():
     print(f"[-] Building hybrid from {yri_sample_id} (0-{midpoint}) and {ceu_sample_id} ({midpoint}+)")
 
     for i, pos in enumerate(common_pos):
-        # This is a bit slow but clear for testing:
-        # We skip ahead in the VCF to find our specific samples
-        # In a real pipeline, you'd load these into memory first
-        record = next(vcf.fetch("22", pos-1, pos))
+        if pos not in vcf_records:
+            continue
+        record = vcf_records[pos]
         
         if i < midpoint:
             gt = record.samples[yri_sample_id].allele_indices

@@ -1,3 +1,15 @@
+"""
+Population-level analysis of ancestry in admixed samples.
+
+This script:
+1. Loads all ASW (Southwest African ancestry) samples from 1000 Genomes
+2. Infers ancestry for each individual in parallel
+3. Computes statistics on ancestry composition across the population
+4. Generates visualizations of the ancestry distribution
+
+Results are saved to CSV for downstream analysis.
+"""
+
 import pysam
 import pandas as pd
 import matplotlib.pyplot as plt

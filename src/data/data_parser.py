@@ -58,13 +58,12 @@ def get_allele_frequencies(vcf_path, sample_list):
 def get_genetic_map(map_file):
     """
     Reads the genetic map and returns arrays for interpolation.
-    The map file columns are usually: [phys_pos] [rate] [genetic_pos]
+    Expected columns: Physical position (bp) and Genetic position (cM).
     """
-    # sep='\s+' handles spaces or tabs in the text file
     df = pd.read_csv(map_file, sep='\s+')
     
-    # Column 0: Physical position (bp) - usually labeled 'pos'
-    # Column 2: Genetic position (cM) - usually labeled 'gpos'
+    # Typically: [position, rate, map_value, genetic_pos] or similar
+    # Use column indices - columns 1 (phys) and 3 (genetic)
     phys_pos = df.iloc[:, 1].values
     gen_pos = df.iloc[:, 3].values
     

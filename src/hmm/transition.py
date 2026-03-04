@@ -1,3 +1,10 @@
+"""
+Transition model for Hidden Markov Model ancestry inference.
+
+Calculates transition probabilities between ancestry states based on genetic distance.
+Uses recombination rate to estimate probability of switching states between SNPs.
+"""
+
 import numpy as np
 
 class TransitionModel:

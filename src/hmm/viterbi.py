@@ -1,3 +1,11 @@
+"""
+Viterbi algorithm for Hidden Markov Model ancestry inference.
+
+Implements the Viterbi algorithm to find the most likely sequence of ancestry states
+for a given sequence of genotypes. Uses dynamic programming to efficiently compute
+the maximum probability path through the HMM state space.
+"""
+
 import numpy as np
 
 class InferenceEngine:
