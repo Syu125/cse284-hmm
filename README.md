@@ -37,3 +37,5 @@ TODO:
 - Write script to download the 3 files above (_did not push to git because files are too big_)
 - Check sample file
 
+## Notes on files:
+`precalculate_frequencies`: caches the frequencies so that runtime is quicker

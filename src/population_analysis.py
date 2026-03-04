@@ -7,7 +7,7 @@ from hmm.transition import TransitionModel
 from hmm.viterbi import InferenceEngine
 def main():
     # 1. Setup Data
-    vcf_path = "../data/chr22_slice.vcf"
+    vcf_path = "../data/ALL.chr22.phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.vcf.gz"
     panel_path = "../data/integrated_call_samples_v3.20130502.ALL.panel"
     map_path = "../data/genetic_map_GRCh37_chr22.txt"
     
