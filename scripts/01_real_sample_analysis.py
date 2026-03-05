@@ -18,6 +18,9 @@ SRC_ROOT = Path(__file__).resolve().parent.parent / 'src'
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
+OUTPUT_DIR = Path("scripts/output")
+OUTPUT_DIR.mkdir(exist_ok=True)
+
 import pysam
 from data.data_parser import get_population_dict, get_allele_frequencies, get_genetic_map, interpolate_genetic_position
 from hmm.emission import EmissionModel
@@ -86,7 +89,7 @@ def main():
         print(f"    Summary: {yri_pct:.1f}% YRI | {100-yri_pct:.1f}% CEU")
 
         # 6. Visualize - ensure unique filename per sample!
-        plot_ancestry(snp_positions, results, save_path=f"ancestry_{sample_id}.png")
+        plot_ancestry(snp_positions, results, save_path=OUTPUT_DIR / f"ancestry_{sample_id}.png")
 
 if __name__ == "__main__":
     main()

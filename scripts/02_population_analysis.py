@@ -17,6 +17,9 @@ SRC_ROOT = Path(__file__).resolve().parent.parent / 'src'
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
+OUTPUT_DIR = Path("scripts/output")
+OUTPUT_DIR.mkdir(exist_ok=True)
+
 import pysam
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -89,15 +92,15 @@ def main():
 
     # 4. Save and Plot
     df = pd.DataFrame(population_data)
-    df.to_csv("asw_ancestry_results.csv", index=False)
+    df.to_csv(OUTPUT_DIR / "asw_ancestry_results.csv", index=False)
     
     plt.figure(figsize=(10, 6))
     plt.hist(df['yri_pct'], bins=15, color='skyblue', edgecolor='black')
     plt.title("Distribution of African (YRI) Ancestry in ASW Population (Chr 22 Slice)")
     plt.xlabel("Percentage of YRI Ancestry")
     plt.ylabel("Number of Individuals")
-    plt.savefig("asw_population_histogram.png")
-    print("\n[+] Done! Results saved to asw_ancestry_results.csv and asw_population_histogram.png")
+    plt.savefig(OUTPUT_DIR / "asw_population_histogram.png")
+    print(f"\n[+] Done! Results saved to {OUTPUT_DIR / 'asw_ancestry_results.csv'} and {OUTPUT_DIR / 'asw_population_histogram.png'}")
 
 if __name__ == "__main__":
     main()

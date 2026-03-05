@@ -63,7 +63,7 @@ download_common_files() {
 
 download_slice() {
     echo ""
-    echo "[*] Downloading chromosome 22 slice (50MB, ~5-10 min)..."
+    echo "[*] Downloading chromosome 22 slice (50MB)..."
     
     if [ -f "$PROCESSED_DIR/chr22_slice.vcf" ]; then
         echo "    [✓] Slice already exists"
@@ -165,5 +165,5 @@ echo "  Processed: $PROCESSED_DIR/"
 echo ""
 echo "Next steps:"
 echo "  1. Verify files exist"
-echo "  2. Run: python scripts/01_simulated_analysis.py"
+echo "  2. Run: python scripts/01_real_sample_analysis.py"
 echo ""
