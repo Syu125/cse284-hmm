@@ -1,19 +1,93 @@
-# Ignore the data folder entirely
-data/
+# ============================================================================
+# Data Files (Large, generated, or downloads)
+# ============================================================================
+# Raw VCF and reference files (too large for Git)
+data/raw/**/*.vcf
+data/raw/**/*.vcf.gz
+data/raw/**/*.vcf.gz.tbi
+data/raw/**/*.vcf.gz.csi
 
-src/eval/predictions/
+# Processed data files
+data/processed/**/*.vcf
+data/processed/**/*.vcf.gz
+data/processed/**/*.vcf.gz.tbi
+data/processed/**/*.vcf.gz.csi
 
-# Ignore Python bytecode
+# Cached frequency files (can be regenerated)
+data/cache/*.pkl
+data/cache/*.pickle
+
+# ============================================================================
+# Analysis Outputs (Generated files)
+# ============================================================================
+# All output files from analyses
+outputs/**/*.png
+outputs/**/*.csv
+outputs/**/*.json
+outputs/**/*.pdf
+
+# Model predictions and evaluation results
+benchmark/predictions/**/*.csv
+benchmark/results/**/*.csv
+
+# ============================================================================
+# Python Development
+# ============================================================================
+# Python bytecode
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
 
-# Ignore virtual environments if you have any in the folder
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+python_packages/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
 .venv/
-env/
 venv/
+ENV/
+env/
+.env
 
-# Ignore OS-specific files
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 .DS_Store
 
-Miniconda3-*.sh
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb_checkpoints
+
+# pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Temporary files
+*.tmp
+*.log
+.temp/
