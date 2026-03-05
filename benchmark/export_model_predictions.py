@@ -66,7 +66,19 @@ def main() -> None:
     transition = TransitionModel(generations=args.generations)
     engine = InferenceEngine(emission, transition)
 
-    selected_samples = pops[args.query_pop][: args.limit_samples]
+    # Get actual samples from the VCF file
+    vcf_check = pysam.VariantFile(args.vcf)
+    available_samples = list(vcf_check.header.samples)
+    vcf_check.close()
+    
+    # Filter to only samples that exist in both panel and VCF
+    candidate_samples = pops[args.query_pop][: args.limit_samples]
+    selected_samples = [s for s in candidate_samples if s in available_samples]
+    
+    if not selected_samples:
+        raise ValueError(f"No {args.query_pop} samples found in VCF. Available: {available_samples[:5]}")
+    
+    print(f"Processing {len(selected_samples)} {args.query_pop} samples from VCF")
     rows = []
 
     for sample_id in selected_samples:
