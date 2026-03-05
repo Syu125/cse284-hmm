@@ -90,10 +90,9 @@ These files are **generated** by analysis scripts (not downloaded):
 
 | File | Created By | Purpose |
 |------|-----------|---------|
-| `data/cache/yri_freqs_chr22.pkl` | `scripts/01_simulated_analysis.py` | Cached YRI allele frequencies |
-| `data/cache/ceu_freqs_chr22.pkl` | `scripts/01_simulated_analysis.py` | Cached CEU allele frequencies |
-| `outputs/simulated/simulated_admixed_karyogram.png` | `01_simulated_analysis.py` | Ancestry painting PNG |
-| `outputs/real_samples/asw_ancestry_results.csv` | `02_real_sample_analysis.py` | Results table |
+| `data/cache/yri_freqs_chr22.pkl` | `scripts/01_real_sample_analysis.py` | Cached YRI allele frequencies |
+| `data/cache/ceu_freqs_chr22.pkl` | `scripts/01_real_sample_analysis.py` | Cached CEU allele frequencies |
+| `outputs/real_samples/asw_ancestry_results.csv` | `01_real_sample_analysis.py` | Results table |
 
 ---
 
@@ -278,7 +277,7 @@ bash download_data_full22.sh
 rm -f data/cache/*.pkl
 
 # Rebuild on next run
-python scripts/01_simulated_analysis.py
+python scripts/01_real_sample_analysis.py
 ```
 
 ### Frequency Calculation Taking Too Long

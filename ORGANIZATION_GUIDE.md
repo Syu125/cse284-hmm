@@ -60,9 +60,8 @@ cse284-hmm/
 │       └── test_data_loading.py
 │
 ├── scripts/                            # NEW: Analysis workflows
-│   ├── 01_simulated_analysis.py        # Test on synthetic admixed
-│   ├── 02_real_sample_analysis.py      # Analyze ASW samples
-│   ├── 03_population_analysis.py       # Population-level stats
+│   ├── 01_real_sample_analysis.py      # Analyze ASW samples
+│   ├── 02_population_analysis.py       # Population-level stats
 │   └── README.md                       # Running order and descriptions
 │
 ├── benchmark/                          # NEW: Benchmarking against RFMix
@@ -78,7 +77,6 @@ cse284-hmm/
 │       └── rfmix_comparison_summary.csv
 │
 ├── outputs/                            # NEW: Results and figures
-│   ├── simulated/
 │   ├── real_samples/
 │   │   ├── asw_ancestry_results.csv
 │   │   ├── karyogram_*.png
@@ -137,24 +135,19 @@ outputs/
 ### 3. **Script Organization (NEW: `scripts/` folder)**
 
 Instead of loose Python files in `src/`:
-- **`01_simulated_analysis.py`** ← rename from `simulated_admixed.py`
-- **`02_real_sample_analysis.py`** ← rename from `analyze_real.py`
-- **`03_population_analysis.py`** ← rename from `population_analysis.py`
+- **`01_real_sample_analysis.py`** ← rename from `analyze_real.py`
+- **`02_population_analysis.py`** ← rename from `population_analysis.py`
 
 Add **`scripts/README.md`** with execution instructions:
 ```
 # Running Analyses
 
-1. **Simulated Analysis** (2-5 min):
-   python 01_simulated_analysis.py
-   Output: outputs/simulated/
-
-2. **Real Sample Analysis** (30-60 min):
-   python 02_real_sample_analysis.py
+1. **Real Sample Analysis** (30-60 min):
+   python 01_real_sample_analysis.py
    Output: outputs/real_samples/
 
-3. **Population Analysis** (varies):
-   python 03_population_analysis.py
+2. **Population Analysis** (varies):
+   python 02_population_analysis.py
    Output: outputs/analysis/
 ```
 
@@ -175,8 +168,6 @@ Add **`scripts/README.md`** with execution instructions:
 **New structure**:
 ```
 outputs/
-├── simulated/
-│   └── (simulated_admixed outputs)
 ├── real_samples/
 │   ├── asw_ancestry_results.csv
 │   ├── karyogram_*.png
@@ -193,13 +184,13 @@ outputs/
 
 ### Remove or Archive:
 - **`checker.py`**: Unclear purpose—document or delete
-- **`population_analysis.py`** in `src/`: Move to `scripts/03_population_analysis.py`
+- **`population_analysis.py`** in `src/`: Move to `scripts/02_population_analysis.py`
 - **`Miniconda3-latest-Linux-x86_64.sh`**: Delete or move to `docs/` if needed for reference
 
 ### Rename:
 - `evaluation/` → `benchmark/` (clearer naming)
-- `simulated_admixed.py` → `01_simulated_analysis.py`
-- `analyze_real.py` → `02_real_sample_analysis.py`
+- `analyze_real.py` → `01_real_sample_analysis.py`
+- `population_analysis.py` → `02_population_analysis.py`
 
 ---
 

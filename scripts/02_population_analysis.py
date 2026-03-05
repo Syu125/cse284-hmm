@@ -25,10 +25,23 @@ from hmm.emission import EmissionModel
 from hmm.transition import TransitionModel
 from hmm.viterbi import InferenceEngine
 def main():
-    # 1. Setup Data
-    vcf_path = "data/ALL.chr22.phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.vcf.gz"
-    panel_path = "data/integrated_call_samples_v3.20130502.ALL.panel"
-    map_path = "data/genetic_map_GRCh37_chr22.txt"
+    # 1. Setup Data - Auto-detect available dataset
+    slice_path = "data/processed/chr22_slice.vcf.gz"
+    full_path = "data/raw/vcf/ALL.chr22.phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.vcf.gz"
+    
+    if Path(slice_path).exists():
+        vcf_path = slice_path
+        print(f"[+] Using slice dataset: {slice_path}")
+    elif Path(full_path).exists():
+        vcf_path = full_path
+        print(f"[+] Using full dataset: {full_path}")
+    else:
+        print("[!] Error: No VCF data found.")
+        print("    Run: bash data/prepare_data.sh slice")
+        sys.exit(1)
+    
+    panel_path = "data/raw/panels/integrated_call_samples_v3.20130502.ALL.panel"
+    map_path = "data/raw/maps/genetic_map_GRCh37_chr22.txt"
     
     pops = get_population_dict(panel_path)
     phys, gen = get_genetic_map(map_path)

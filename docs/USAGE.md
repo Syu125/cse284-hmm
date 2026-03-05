@@ -14,41 +14,20 @@ bash data/prepare_data.sh slice    # Download ~50MB slice (quick)
 bash data/prepare_data.sh full     # Download ~1GB full dataset
 ```
 
-### Step 1-3: Run Analyses
+### Step 1-2: Run Analyses
 
 ---
 
 ## Analysis Workflows
 
-### 1. Simulated Analysis (Validation)
-**Purpose**: Test HMM on synthetically created admixed individual  
-**Runtime**: 5-15 minutes  
-**Data**: Works with both slice and full datasets
-
-```bash
-python scripts/01_simulated_analysis.py
-```
-
-**Expected Output**:
-- `outputs/simulated/simulated_admixed_karyogram.png` - Ancestry painting
-- Console output showing detected vs true ancestry switches
-
-**What it does**:
-- Creates synthetic admixed individual (e.g., 50% YRI, 50% CEU)
-- Runs HMM WITHOUT knowing the true ancestry
-- Compares inferred ancestry to known solution
-- Validates algorithm accuracy
-
----
-
-### 2. Real Sample Analysis (Production)
+### 1. Real Sample Analysis (Production)
 **Purpose**: Analyze real admixed samples from 1000 Genomes  
 **Samples**: ASW (African ancestry in Southwest USA)  
 **Runtime**: 30-60 minutes (full dataset), 2-5 minutes (slice)  
 **Data**: Recommended to use full dataset for robust results
 
 ```bash
-python scripts/02_real_sample_analysis.py
+python scripts/01_real_sample_analysis.py
 ```
 
 **Expected Output**:
@@ -78,13 +57,13 @@ outputs/real_samples/
 
 ---
 
-### 3. Population Analysis (Advanced)
+### 2. Population Analysis (Advanced)
 **Purpose**: Detailed population-level statistics  
 **Runtime**: 1-2 hours (full dataset)  
 **Data**: Requires full dataset
 
 ```bash
-python scripts/03_population_analysis.py
+python scripts/02_population_analysis.py
 ```
 
 **Expected Output**:
@@ -171,7 +150,7 @@ python tests/test_data_loading.py
 
 | Analysis | Output Location |
 |----------|-----------------|
-| Simulated | `outputs/simulated/` |
+
 | Real Samples | `outputs/real_samples/` |
 | Population Stats | `outputs/analysis/` |
 | RFMix Predictions | `benchmark/predictions/` |
@@ -184,7 +163,7 @@ python tests/test_data_loading.py
 ### Speed Up Analysis
 ```bash
 # Use process caching for frequencies (first run only)
-python scripts/01_simulated_analysis.py --cache
+python scripts/01_real_sample_analysis.py --cache
 ```
 
 ### Reduce Memory Usage
@@ -196,7 +175,7 @@ bash data/prepare_data.sh slice
 ### Parallel Processing (if implemented)
 ```bash
 # Some scripts support multiprocessing
-python scripts/02_real_sample_analysis.py --jobs 4
+python scripts/01_real_sample_analysis.py --jobs 4
 ```
 
 ---
@@ -207,6 +186,7 @@ python scripts/02_real_sample_analysis.py --jobs 4
 ```bash
 # Download data
 bash data/prepare_data.sh slice  # or prepare_data.sh full
+python scripts/01_real_sample_analysis.py
 ```
 
 ### "Memory error"

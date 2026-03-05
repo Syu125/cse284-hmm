@@ -293,17 +293,7 @@ def get_population_dict(panel_path):
 
 ## Analysis Workflow
 
-### 1. Simulated Analysis (Validation)
-```
-Input: Reference VCF
-├─ Extract YRI/CEU samples from reference
-├─ Compute allele frequencies (cached)
-├─ Create synthetic admixed sample (50% each population)
-├─ Run Viterbi inference
-└─ Compare predicted vs known → Metrics (accuracy, switch detection)
-```
-
-### 2. Real Sample Analysis (Production)
+### 1. Real Sample Analysis (Production)
 ```
 Input: Reference VCF + Query VCF
 ├─ Extract YRI/CEU reference samples

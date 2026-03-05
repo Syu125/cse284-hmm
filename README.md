@@ -13,7 +13,7 @@ conda activate hmm_env
 bash data/prepare_data.sh slice
 
 # 3. Run analysis
-python scripts/01_simulated_analysis.py
+python scripts/01_real_sample_analysis.py
 ```
 
 ## Project Structure
@@ -34,9 +34,8 @@ cse284-hmm/
 │   └── utils.py                # Caching utilities
 │
 ├── scripts/                     # Analysis Workflows
-│   ├── 01_simulated_analysis.py
-│   ├── 02_real_sample_analysis.py
-│   └── 03_population_analysis.py
+│   ├── 01_real_sample_analysis.py
+│   └── 02_population_analysis.py
 │
 ├── benchmark/                   # RFMix Benchmarking
 │   ├── export_model_predictions.py
@@ -75,19 +74,14 @@ See [docs/SETUP.md](docs/SETUP.md) for detailed installation and setup instructi
 
 ## Running Analyses
 
-1. **Simulated** (5 min) - Validate on synthetic admixed individual
+1. **Real Samples** (30 min) - Analyze ASW (admixed) individuals
    ```bash
-   python scripts/01_simulated_analysis.py
+   python scripts/01_real_sample_analysis.py
    ```
 
-2. **Real Samples** (30 min) - Analyze ASW (admixed) individuals
+2. **Population** (1+ hr) - Aggregate population statistics
    ```bash
-   python scripts/02_real_sample_analysis.py
-   ```
-
-3. **Population** (1+ hr) - Aggregate population statistics
-   ```bash
-   python scripts/03_population_analysis.py
+   python scripts/02_population_analysis.py
    ```
 
 See [docs/USAGE.md](docs/USAGE.md) for complete step-by-step guide.

@@ -80,13 +80,13 @@ bash data/prepare_data.sh all
 
 Run the first analysis to confirm everything works:
 ```bash
-python scripts/01_simulated_analysis.py
+python scripts/01_real_sample_analysis.py
 ```
 
 Expected output:
-- Synthetic admixed individual generated with simulated ancestry
-- Ancestry painting PNG file saved to `outputs/simulated/`
-- Console output showing detected vs true ancestry
+- Real ASW sample analysis with ancestry inference
+- Ancestry painting PNG files saved to `outputs/real_samples/`
+- Console output showing sample processing and results
 
 If this succeeds, your environment is ready!
 

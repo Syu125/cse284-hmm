@@ -7,23 +7,12 @@ This folder contains the main analysis workflows for the HMM local ancestry infe
 ```bash
 cd cse284-hmm
 conda activate hmm_env
-python scripts/01_simulated_analysis.py
+python scripts/01_real_sample_analysis.py
 ```
 
 ## Scripts
 
-### 1. Simulated Analysis - `01_simulated_analysis.py`
-**Purpose**: Validate HMM performance on synthetic admixed data  
-**Runtime**: 5-15 minutes  
-**Output**: `outputs/simulated/`
-
-Creates a synthetic admixed individual and compares inferred vs true ancestry to validate the algorithm.
-
-```bash
-python scripts/01_simulated_analysis.py
-```
-
-### 2. Real Sample Analysis - `02_real_sample_analysis.py`
+### 1. Real Sample Analysis - `01_real_sample_analysis.py`
 **Purpose**: Analyze real ASW (admixed) samples  
 **Runtime**: 30-60 minutes (full data), 2-5 minutes (slice)  
 **Output**: `outputs/real_samples/`
@@ -31,10 +20,10 @@ python scripts/01_simulated_analysis.py
 Processes all ASW samples from the dataset and generates ancestry paintings.
 
 ```bash
-python scripts/02_real_sample_analysis.py
+python scripts/01_real_sample_analysis.py
 ```
 
-### 3. Population Analysis - `03_population_analysis.py`
+### 2. Population Analysis - `02_population_analysis.py`
 **Purpose**: Population-level statistics and visualizations  
 **Runtime**: 1-2 hours  
 **Output**: `outputs/analysis/`
@@ -42,16 +31,15 @@ python scripts/02_real_sample_analysis.py
 Aggregates statistics across all analyzed samples for population-wide insights.
 
 ```bash
-python scripts/03_population_analysis.py
+python scripts/02_population_analysis.py
 ```
 
 ## Running All Analyses
 
 ```bash
 # Sequential execution (recommended for first-time)
-python scripts/01_simulated_analysis.py
-python scripts/02_real_sample_analysis.py
-python scripts/03_population_analysis.py
+python scripts/01_real_sample_analysis.py
+python scripts/02_population_analysis.py
 ```
 
 ## Troubleshooting
@@ -60,20 +48,20 @@ python scripts/03_population_analysis.py
 Ensure you're in the project root directory when running:
 ```bash
 cd /path/to/cse284-hmm
-python scripts/01_simulated_analysis.py  # ✓ Correct
+python scripts/01_real_sample_analysis.py  # ✓ Correct
 ```
 
 Not from the scripts directory:
 ```bash
 cd scripts
-python 01_simulated_analysis.py  # ✗ Will fail with import errors
+python 01_real_sample_analysis.py  # ✗ Will fail with import errors
 ```
 
 ### "VCF file not found"
 Download data first:
 ```bash
 bash data/prepare_data.sh slice  # or prepare_data.sh full
-python scripts/01_simulated_analysis.py
+python scripts/01_real_sample_analysis.py
 ```
 
 ### Script crashes mid-execution
@@ -89,12 +77,10 @@ All scripts save results to `outputs/`:
 
 ```
 outputs/
-├── simulated/            # 01_simulated_analysis.py
-│   └── *.png
-├── real_samples/         # 02_real_sample_analysis.py
+├── real_samples/         # 01_real_sample_analysis.py
 │   ├── *.csv
 │   └── *.png
-└── analysis/             # 03_population_analysis.py
+└── analysis/             # 02_population_analysis.py
     ├── *.csv
     └── *.png
 ```

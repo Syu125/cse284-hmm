@@ -35,9 +35,8 @@ This document catalogs every file in the repository and explains its purpose. Us
 | File | Purpose | Status |
 |------|---------|--------|
 | `scripts/README.md` | Guide for running analysis scripts in sequence | **KEEP** |
-| `scripts/01_simulated_analysis.py` | Test on synthetic admixed individual | **KEEP** |
-| `scripts/02_real_sample_analysis.py` | Analyze real ASW (admixed) samples | **KEEP** |
-| `scripts/03_population_analysis.py` | Population-level statistics and aggregation | **KEEP** |
+| `scripts/01_real_sample_analysis.py` | Analyze real ASW (admixed) samples | **KEEP** |
+| `scripts/02_population_analysis.py` | Population-level statistics and aggregation | **KEEP** |
 
 **Recommendation**: Core workflow files - all essential.
 
@@ -165,7 +164,6 @@ data/raw/panels/
 data/raw/maps/
 data/processed/
 data/cache/
-outputs/simulated/
 outputs/real_samples/
 outputs/analysis/
 benchmark/predictions/
