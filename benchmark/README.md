@@ -51,11 +51,24 @@ rfmix \
 
 See [RFMix documentation](https://github.com/slowkoni/rfmix) for advanced options.
 
+### 1. Convert RFMix Output to SNP-Level CSV
+
+**Convert RFMix segments to per-SNP predictions**:
+```bash
+python benchmark/convert_rfmix_to_snp_csv.py \
+  --msp benchmark/rfmix_output.msp.tsv \
+  --vcf benchmark/data/query_asw_chr22.vcf.gz \
+  --out benchmark/predictions/rfmix_predictions.csv \
+  --chromosome 22
+```
+
+This expands segment-level ancestry calls to individual SNP positions for comparison.
+
 ### 2. Export HMM Predictions
 
 ```bash
 python benchmark/export_model_predictions.py \
-  --vcf benchmark/data/query_asw_chr22.vcf.gz \
+  --vcf data/processed/chr22_slice.vcf.gz \
   --panel data/raw/panels/integrated_call_samples_v3.20130502.ALL.panel \
   --map data/raw/maps/genetic_map_GRCh37_chr22.txt \
   --query-pop ASW \
@@ -67,7 +80,7 @@ python benchmark/export_model_predictions.py \
 ```bash
 python benchmark/compare_with_rfmix.py \
   --model benchmark/predictions/model_predictions.csv \
-  --rfmix rfmix_predictions_chr22.csv \
+  --rfmix benchmark/predictions/rfmix_predictions.csv \
   --sample-col sample_id \
   --position-col position \
   --model-label-col label \
