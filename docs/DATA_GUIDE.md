@@ -90,10 +90,10 @@ These files are **generated** by analysis scripts (not downloaded):
 
 | File | Created By | Purpose |
 |------|-----------|---------|
-| `data/cache/yri_freqs_chr22.pkl` | `scripts/01_sanity_check.py` | Cached YRI allele frequencies |
-| `data/cache/ceu_freqs_chr22.pkl` | `scripts/01_sanity_check.py` | Cached CEU allele frequencies |
-| `outputs/sanity_check/NA19625_karyogram.png` | `01_sanity_check.py` | Ancestry painting PNG |
-| `outputs/real_samples/asw_ancestry_results.csv` | `03_real_sample_analysis.py` | Results table |
+| `data/cache/yri_freqs_chr22.pkl` | `scripts/01_simulated_analysis.py` | Cached YRI allele frequencies |
+| `data/cache/ceu_freqs_chr22.pkl` | `scripts/01_simulated_analysis.py` | Cached CEU allele frequencies |
+| `outputs/simulated/simulated_admixed_karyogram.png` | `01_simulated_analysis.py` | Ancestry painting PNG |
+| `outputs/real_samples/asw_ancestry_results.csv` | `02_real_sample_analysis.py` | Results table |
 
 ---
 
@@ -212,7 +212,7 @@ Example from 1000 Genomes Phase 3:
 If comparing against RFMix:
 
 ```
-evaluation/results/
+benchmark/results/
 ├── rfmix_slice_output.msp.tsv       # Ancestry state calls (RFMix)
 ├── rfmix_slice_output.sis.tsv       # Posterior probabilities
 └── rfmix_comparison_summary.csv     # Comparison metrics
@@ -278,13 +278,13 @@ bash download_data_full22.sh
 rm -f data/cache/*.pkl
 
 # Rebuild on next run
-python ../scripts/01_sanity_check.py
+python scripts/01_simulated_analysis.py
 ```
 
 ### Frequency Calculation Taking Too Long
 ```bash
 # Use slice dataset instead
-bash data/scripts/download_data_slice.sh
+bash data/prepare_data.sh slice
 ```
 
 ---

@@ -14,43 +14,19 @@ bash data/prepare_data.sh slice    # Download ~50MB slice (quick)
 bash data/prepare_data.sh full     # Download ~1GB full dataset
 ```
 
-### Step 1-4: Run Analyses
+### Step 1-3: Run Analyses
 
 ---
 
 ## Analysis Workflows
 
-### 1. Sanity Check (Quick Test)
-**Purpose**: Validate the HMM pipeline on a single known sample  
-**Sample**: NA19625 (YRI/CEU admixed)  
-**Runtime**: 5-10 minutes  
-**Data**: Works with both slice and full datasets
-
-```bash
-cd src
-python ../scripts/01_sanity_check.py
-```
-
-**Expected Output**:
-- `outputs/sanity_check/NA19625_karyogram.png` - Ancestry painting for the sample
-- Console output with ancestry statistics
-
-**What it does**:
-- Loads reference populations (YRI, CEU)
-- Computes allele frequencies
-- Runs HMM inference on a single admixed individual
-- Generates visualization
-
----
-
-### 2. Simulated Analysis (Validation)
+### 1. Simulated Analysis (Validation)
 **Purpose**: Test HMM on synthetically created admixed individual  
 **Runtime**: 5-15 minutes  
 **Data**: Works with both slice and full datasets
 
 ```bash
-cd src
-python ../scripts/02_simulated_analysis.py
+python scripts/01_simulated_analysis.py
 ```
 
 **Expected Output**:
@@ -65,15 +41,14 @@ python ../scripts/02_simulated_analysis.py
 
 ---
 
-### 3. Real Sample Analysis (Production)
+### 2. Real Sample Analysis (Production)
 **Purpose**: Analyze real admixed samples from 1000 Genomes  
 **Samples**: ASW (African ancestry in Southwest USA)  
 **Runtime**: 30-60 minutes (full dataset), 2-5 minutes (slice)  
 **Data**: Recommended to use full dataset for robust results
 
 ```bash
-cd src
-python ../scripts/03_real_sample_analysis.py
+python scripts/02_real_sample_analysis.py
 ```
 
 **Expected Output**:
@@ -103,14 +78,13 @@ outputs/real_samples/
 
 ---
 
-### 4. Population Analysis (Advanced)
+### 3. Population Analysis (Advanced)
 **Purpose**: Detailed population-level statistics  
 **Runtime**: 1-2 hours (full dataset)  
 **Data**: Requires full dataset
 
 ```bash
-cd src
-python ../scripts/04_population_analysis.py
+python scripts/03_population_analysis.py
 ```
 
 **Expected Output**:
@@ -158,8 +132,6 @@ python benchmark/compare_with_rfmix.py \
 - Switches per Mb
 - Tract length statistics
 
----
-
 ## Data Options
 
 All scripts automatically detect available data:
@@ -185,13 +157,12 @@ Scripts automatically use full dataset if available, fall back to slice.
 Validate data loading and components:
 
 ```bash
-cd src
-python -m pytest ../tests/
+python -m pytest tests/
 ```
 
 Or run individual test:
 ```bash
-python ../tests/test_data_loading.py
+python tests/test_data_loading.py
 ```
 
 ---
@@ -200,12 +171,11 @@ python ../tests/test_data_loading.py
 
 | Analysis | Output Location |
 |----------|-----------------|
-| Sanity Check | `outputs/sanity_check/` |
 | Simulated | `outputs/simulated/` |
 | Real Samples | `outputs/real_samples/` |
 | Population Stats | `outputs/analysis/` |
-| RFMix Predictions | `evaluation/predictions/` |
-| RFMix Comparison | `evaluation/results/` |
+| RFMix Predictions | `benchmark/predictions/` |
+| RFMix Comparison | `benchmark/results/` |
 
 ---
 
@@ -214,20 +184,19 @@ python ../tests/test_data_loading.py
 ### Speed Up Analysis
 ```bash
 # Use process caching for frequencies (first run only)
-python ../scripts/01_sanity_check.py --cache
+python scripts/01_simulated_analysis.py --cache
 ```
 
 ### Reduce Memory Usage
 ```bash
 # Use slice dataset
-cd data
-bash download_data_slice.sh
+bash data/prepare_data.sh slice
 ```
 
 ### Parallel Processing (if implemented)
 ```bash
 # Some scripts support multiprocessing
-python ../scripts/03_real_sample_analysis.py --jobs 4
+python scripts/02_real_sample_analysis.py --jobs 4
 ```
 
 ---
@@ -237,8 +206,7 @@ python ../scripts/03_real_sample_analysis.py --jobs 4
 ### "VCF file not found"
 ```bash
 # Download data
-cd data
-bash download_data_slice.sh  # or download_data_full22.sh
+bash data/prepare_data.sh slice  # or prepare_data.sh full
 ```
 
 ### "Memory error"

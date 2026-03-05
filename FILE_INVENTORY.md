@@ -35,10 +35,9 @@ This document catalogs every file in the repository and explains its purpose. Us
 | File | Purpose | Status |
 |------|---------|--------|
 | `scripts/README.md` | Guide for running analysis scripts in sequence | **KEEP** |
-| `scripts/01_sanity_check.py` | Quick validation on single known sample (NA19625) | **KEEP** |
-| `scripts/02_simulated_analysis.py` | Test on synthetic admixed individual | **KEEP** |
-| `scripts/03_real_sample_analysis.py` | Analyze real ASW (admixed) samples | **KEEP** |
-| `scripts/04_population_analysis.py` | Population-level statistics and aggregation | **KEEP** |
+| `scripts/01_simulated_analysis.py` | Test on synthetic admixed individual | **KEEP** |
+| `scripts/02_real_sample_analysis.py` | Analyze real ASW (admixed) samples | **KEEP** |
+| `scripts/03_population_analysis.py` | Population-level statistics and aggregation | **KEEP** |
 
 **Recommendation**: Core workflow files - all essential.
 
@@ -139,16 +138,16 @@ This document catalogs every file in the repository and explains its purpose. Us
 
 ---
 
-## 📊 Evaluation & Benchmarking (`evaluation/`)
+## 📊 Evaluation & Benchmarking (`benchmark/`)
 
 | File | Purpose | Status |
 |------|---------|--------|
-| `evaluation/README.md` | Guide for running RFMix comparison | **KEEP** |
-| `evaluation/__init__.py` | Package marker | **KEEP** |
-| `evaluation/export_model_predictions.py` | Export HMM predictions to CSV for comparison | **KEEP** |
-| `evaluation/compare_with_rfmix.py` | Compare HMM vs RFMix at SNP level | **KEEP** |
-| `evaluation/convert_rfmix_to_snp_csv.py` | Convert RFMix output format to CSV | **KEEP** (if using RFMix) |
-| `evaluation/metrics.py` | Evaluation metrics (concordance, kappa, switches) | **KEEP** |
+| `benchmark/README.md` | Guide for running RFMix comparison | **KEEP** |
+| `benchmark/__init__.py` | Package marker | **KEEP** |
+| `benchmark/export_model_predictions.py` | Export HMM predictions to CSV for comparison | **KEEP** |
+| `benchmark/compare_with_rfmix.py` | Compare HMM vs RFMix at SNP level | **KEEP** |
+| `benchmark/convert_rfmix_to_snp_csv.py` | Convert RFMix output format to CSV | **KEEP** (if using RFMix) |
+| `benchmark/metrics.py` | Evaluation metrics (concordance, kappa, switches) | **KEEP** |
 
 **Recommendation**: Keep all if you plan to benchmark against RFMix. Otherwise:
 - Keep: `export_model_predictions.py`, `metrics.py` (useful for any evaluation)
@@ -166,12 +165,11 @@ data/raw/panels/
 data/raw/maps/
 data/processed/
 data/cache/
-outputs/sanity_check/
 outputs/simulated/
 outputs/real_samples/
 outputs/analysis/
-evaluation/predictions/
-evaluation/results/
+benchmark/predictions/
+benchmark/results/
 ```
 
 **Status**: **KEEP** - Essential directory structure
@@ -191,8 +189,8 @@ evaluation/results/
 4. `data/scripts/prepare_rfmix_vcfs.sh`
 5. `data/scripts/run_rfmix_slice.sh`
 6. `data/scripts/generate_rfmix_map.py`
-7. `evaluation/convert_rfmix_to_snp_csv.py`
-8. `evaluation/compare_with_rfmix.py`
+7. `benchmark/convert_rfmix_to_snp_csv.py`
+8. `benchmark/compare_with_rfmix.py`
 
 ### ✅ Essential Files to Keep (26 core files)
 
@@ -219,8 +217,8 @@ rm src/precalculate_frequencies.py
 rm data/scripts/prepare_rfmix_vcfs.sh
 rm data/scripts/run_rfmix_slice.sh
 rm data/scripts/generate_rfmix_map.py
-rm evaluation/convert_rfmix_to_snp_csv.py
-rm evaluation/compare_with_rfmix.py
+rm benchmark/convert_rfmix_to_snp_csv.py
+rm benchmark/compare_with_rfmix.py
 ```
 
 ---

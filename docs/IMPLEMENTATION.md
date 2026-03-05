@@ -293,26 +293,17 @@ def get_population_dict(panel_path):
 
 ## Analysis Workflow
 
-### 1. Sanity Check (Single Sample)
-```
-Input: Reference VCF + Known admixed sample
-├─ Extract YRI/CEU samples from reference
-├─ Compute allele frequencies (cached)
-├─ Create emission probabilities for query sample
-├─ Run Viterbi
-└─ Output: Ancestry painting + statistics
-```
-
-### 2. Simulated Analysis (Validation)
+### 1. Simulated Analysis (Validation)
 ```
 Input: Reference VCF
-├─ Extract YRI/CEU samples
+├─ Extract YRI/CEU samples from reference
+├─ Compute allele frequencies (cached)
 ├─ Create synthetic admixed sample (50% each population)
-├─ Run HMM inference (without seeing true ancestry)
+├─ Run Viterbi inference
 └─ Compare predicted vs known → Metrics (accuracy, switch detection)
 ```
 
-### 3. Real Sample Analysis (Production)
+### 2. Real Sample Analysis (Production)
 ```
 Input: Reference VCF + Query VCF
 ├─ Extract YRI/CEU reference samples

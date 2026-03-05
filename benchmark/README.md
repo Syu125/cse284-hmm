@@ -22,25 +22,25 @@ benchmark/
 ### 1. Export HMM Predictions
 
 ```bash
-python evaluation/export_model_predictions.py \
+python benchmark/export_model_predictions.py \
   --vcf data/raw/vcf/query_asw_chr22.vcf.gz \
   --panel data/raw/panels/integrated_call_samples_v3.20130502.ALL.panel \
   --map data/raw/maps/genetic_map_GRCh37_chr22.txt \
   --query-pop ASW \
-  --out evaluation/predictions/model_predictions.csv
+  --out benchmark/predictions/model_predictions.csv
 ```
 
 ### 2. Compare with RFMix
 
 ```bash
-python evaluation/compare_with_rfmix.py \
-  --model evaluation/predictions/model_predictions.csv \
+python benchmark/compare_with_rfmix.py \
+  --model benchmark/predictions/model_predictions.csv \
   --rfmix rfmix_predictions_chr22.csv \
   --sample-col sample_id \
   --position-col position \
   --model-label-col label \
   --rfmix-label-col label \
-  --out evaluation/results/comparison.csv
+  --out benchmark/results/comparison.csv
 ```
 
 ## Scripts
@@ -50,7 +50,7 @@ Export per-SNP ancestry predictions from your HMM model for benchmarking.
 
 **Usage**:
 ```bash
-python evaluation/export_model_predictions.py --help
+python benchmark/export_model_predictions.py --help
 ```
 
 **Required arguments**:
@@ -74,7 +74,7 @@ Compare HMM predictions with RFMix results at SNP level.
 
 **Usage**:
 ```bash
-python evaluation/compare_with_rfmix.py --help
+python benchmark/compare_with_rfmix.py --help
 ```
 
 **Output metrics**:
@@ -133,7 +133,7 @@ Summary statistics from RFMix comparison:
 ### Export script fails: "Sample not found"
 - Check query population code matches panel file
 - Verify VCF file contains samples from that population
-- Use `python eval_sample_sanity_check.py` to list available populations
+- Review the panel file to list available population codes
 
 ### Comparison script gives low concordance
 - Check both files use same position/label columns

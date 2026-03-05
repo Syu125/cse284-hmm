@@ -78,16 +78,15 @@ bash data/prepare_data.sh all
 
 ## Step 4: Verify Setup
 
-Run the sanity check to confirm everything works:
+Run the first analysis to confirm everything works:
 ```bash
-cd src
-python ../scripts/01_sanity_check.py
+python scripts/01_simulated_analysis.py
 ```
 
 Expected output:
-- Reference sample (NA19625) ancestry painted
-- PNG file saved to `outputs/sanity_check/`
-- Console output with statistics
+- Synthetic admixed individual generated with simulated ancestry
+- Ancestry painting PNG file saved to `outputs/simulated/`
+- Console output showing detected vs true ancestry
 
 If this succeeds, your environment is ready!
 
@@ -107,9 +106,8 @@ conda install -c bioconda tabix
 ### Issue: VCF file corrupted/incomplete
 ```bash
 # Delete and re-download
-cd data
-rm -f raw/vcf/*.vcf.gz*
-bash download_data_slice.sh
+rm -f data/raw/vcf/*.vcf.gz*
+bash data/prepare_data.sh slice
 ```
 
 ### Issue: Memory error with full dataset

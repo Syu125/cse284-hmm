@@ -60,13 +60,12 @@ cse284-hmm/
 │       └── test_data_loading.py
 │
 ├── scripts/                            # NEW: Analysis workflows
-│   ├── 01_sanity_check.py              # Test on known sample (NA19625)
-│   ├── 02_simulated_analysis.py        # Test on synthetic admixed
-│   ├── 03_real_sample_analysis.py      # Analyze ASW samples
-│   ├── 04_population_analysis.py       # Population-level stats
+│   ├── 01_simulated_analysis.py        # Test on synthetic admixed
+│   ├── 02_real_sample_analysis.py      # Analyze ASW samples
+│   ├── 03_population_analysis.py       # Population-level stats
 │   └── README.md                       # Running order and descriptions
 │
-├── evaluation/                         # NEW: Benchmarking against RFMix
+├── benchmark/                          # NEW: Benchmarking against RFMix
 │   ├── README.md
 │   ├── export_predictions.py           # Export HMM predictions
 │   ├── compare_with_rfmix.py
@@ -79,16 +78,13 @@ cse284-hmm/
 │       └── rfmix_comparison_summary.csv
 │
 ├── outputs/                            # NEW: Results and figures
-│   ├── sanity_check/
-│   │   └── sanity_NA19625_full.png
 │   ├── simulated/
 │   ├── real_samples/
 │   │   ├── asw_ancestry_results.csv
-│   │   ├── ancestry_plot.png
+│   │   ├── karyogram_*.png
 │   │   └── asw_population_histogram.png
 │   └── analysis/
-│       └── slice_results/
-│           └── notes.MD
+│       └── population_level_stats.csv
 │
 └── requirements.txt                    # NEW: pip requirements (optional backup)
 ```
@@ -141,35 +137,30 @@ outputs/
 ### 3. **Script Organization (NEW: `scripts/` folder)**
 
 Instead of loose Python files in `src/`:
-- **`01_sanity_check.py`** ← rename from `sanity_check_na19625.py`
-- **`02_simulated_analysis.py`** ← rename from `simulated_admixed.py`
-- **`03_real_sample_analysis.py`** ← rename from `analyze_real.py`
-- **`04_population_analysis.py`** ← rename from `population_analysis.py`
+- **`01_simulated_analysis.py`** ← rename from `simulated_admixed.py`
+- **`02_real_sample_analysis.py`** ← rename from `analyze_real.py`
+- **`03_population_analysis.py`** ← rename from `population_analysis.py`
 
 Add **`scripts/README.md`** with execution instructions:
 ```
 # Running Analyses
 
-1. **Sanity Check** (5-10 min):
-   python 01_sanity_check.py
-   Output: outputs/sanity_check/
-
-2. **Simulated Analysis** (2-5 min):
-   python 02_simulated_analysis.py
+1. **Simulated Analysis** (2-5 min):
+   python 01_simulated_analysis.py
    Output: outputs/simulated/
 
-3. **Real Sample Analysis** (30-60 min):
-   python 03_real_sample_analysis.py
+2. **Real Sample Analysis** (30-60 min):
+   python 02_real_sample_analysis.py
    Output: outputs/real_samples/
 
-4. **Population Analysis** (varies):
-   python 04_population_analysis.py
+3. **Population Analysis** (varies):
+   python 03_population_analysis.py
    Output: outputs/analysis/
 ```
 
 ---
 
-### 4. **Evaluation Reorganization (rename `eval/` → `evaluation/`)**
+### 4. **Evaluation Reorganization (rename `eval/` → `benchmark/`)**
 
 - Consolidate benchmarking code
 - Create `predictions/` and `results/` subdirectories for clarity
@@ -184,8 +175,6 @@ Add **`scripts/README.md`** with execution instructions:
 **New structure**:
 ```
 outputs/
-├── sanity_check/
-│   └── NA19625_karyogram.png
 ├── simulated/
 │   └── (simulated_admixed outputs)
 ├── real_samples/
@@ -204,14 +193,13 @@ outputs/
 
 ### Remove or Archive:
 - **`checker.py`**: Unclear purpose—document or delete
-- **`population_analysis.py`** in `src/`: Move to `scripts/04_population_analysis.py`
+- **`population_analysis.py`** in `src/`: Move to `scripts/03_population_analysis.py`
 - **`Miniconda3-latest-Linux-x86_64.sh`**: Delete or move to `docs/` if needed for reference
 
 ### Rename:
-- `eval/` → `evaluation/` (more standard name)
-- `sanity_check_na19625.py` → `01_sanity_check.py`
-- `simulated_admixed.py` → `02_simulated_analysis.py`
-- `analyze_real.py` → `03_real_sample_analysis.py`
+- `evaluation/` → `benchmark/` (clearer naming)
+- `simulated_admixed.py` → `01_simulated_analysis.py`
+- `analyze_real.py` → `02_real_sample_analysis.py`
 
 ---
 
@@ -221,7 +209,7 @@ After reorganization, a new user should:
 
 1. Clone repo
 2. Follow `docs/SETUP.md` to create conda environment
-3. Run `data/scripts/download_data_slice.sh` (or full version)
+3. Run `bash data/prepare_data.sh slice` (or `full` for complete dataset)
 4. Follow `scripts/README.md` to run analyses
 5. Check `outputs/` for results
 
@@ -242,7 +230,7 @@ After reorganization, a new user should:
 4. Create `IMPLEMENTATION.md`
 
 ### Phase 3 (Polish - 1-2 hours):
-1. Rename `eval/` → `evaluation/`
+1. Rename `eval/` → `benchmark/`
 2. Add docstrings to scripts
 3. Create `scripts/README.md` with examples
 4. Final validation: run scripts from new locations
