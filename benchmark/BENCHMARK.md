@@ -96,6 +96,22 @@ python benchmark/compare_with_rfmix.py \
 By default, comparison includes `YRI,CEU,HET` for full 3-class evaluation.
 To run a homozygous-only diagnostic check, set `--valid-labels YRI,CEU` explicitly.
 
+### 4. Sample-Size Stability Sweep (Optional)
+
+To estimate variability across sample composition, run repeated seeded subsamples:
+
+```bash
+python benchmark/run_sample_size_sweep.py \
+  --sample-sizes 5,20,50 \
+  --seeds 0,1,2,3,4 \
+  --sample-strategy random \
+  --out-prefix sample_sweep
+```
+
+Outputs:
+- `benchmark/results/sample_sweep_runs.csv` (one row per sample size and seed)
+- `benchmark/results/sample_sweep_summary.csv` (mean/std metrics per sample size)
+
 ## Benchmark Results
 
 The following results use full 3-class evaluation (`YRI`, `CEU`, `HET`) on the chr22 slice.
@@ -110,3 +126,17 @@ The following results use full 3-class evaluation (`YRI`, `CEU`, `HET`) on the c
 - The 20- and 50-sample runs show similar kappa values, suggesting stable chance-adjusted agreement as sample size increases.
 - Concordance varies more with sample composition, so kappa is the primary comparison metric.
 - Binary-only evaluation (`--valid-labels YRI,CEU`) is retained only for diagnostic sanity checks and is not used as the headline result.
+
+### Sample-Size Sweep (5 Random Repeats per N)
+
+Using `run_sample_size_sweep.py` with `--sample-strategy random` and seeds `0,1,2,3,4`:
+
+| Sample Size | Repeats | Mean Aligned Rows | Mean Samples Compared | Mean Concordance | Std Concordance | Mean Kappa | Std Kappa |
+|------------:|--------:|------------------:|----------------------:|-----------------:|----------------:|-----------:|----------:|
+| 5           | 5       | 79,730.0          | 5.0                   | 0.795023         | 0.080396        | 0.542547   | 0.215686  |
+| 20          | 5       | 318,920.0         | 20.0                  | 0.810998         | 0.058768        | 0.502608   | 0.101310  |
+| 50          | 5       | 797,300.0         | 50.0                  | 0.820949         | 0.010196        | 0.483218   | 0.013899  |
+
+Interpretation:
+- Variance drops substantially as sample size increases (especially at `N=50`), indicating more stable benchmark estimates.
+- Kappa remains in a similar range across sample sizes, suggesting consistent chance-adjusted performance.

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
+import random
 import sys
 
 import pandas as pd
@@ -45,6 +46,18 @@ def build_parser() -> argparse.ArgumentParser:
         help="Population to infer for and export (for example ASW)",
     )
     parser.add_argument("--limit-samples", type=int, default=5)
+    parser.add_argument(
+        "--sample-strategy",
+        choices=["first", "random"],
+        default="first",
+        help="How to select samples from the query population (default: first)",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=0,
+        help="Random seed used when --sample-strategy random (default: 0)",
+    )
     parser.add_argument("--generations", type=float, default=100.0)
     parser.add_argument("--out", default="model_predictions_chr22.csv")
     return parser
@@ -79,13 +92,26 @@ def main() -> None:
     vcf_check.close()
     
     # Filter to only samples that exist in both panel and VCF
-    candidate_samples = pops[args.query_pop][: args.limit_samples]
-    selected_samples = [s for s in candidate_samples if s in available_samples]
+    candidate_samples = [s for s in pops[args.query_pop] if s in available_samples]
+
+    if len(candidate_samples) < args.limit_samples:
+        raise ValueError(
+            f"Requested {args.limit_samples} samples but only {len(candidate_samples)} {args.query_pop} samples are available in VCF"
+        )
+
+    if args.sample_strategy == "random":
+        rng = random.Random(args.seed)
+        selected_samples = rng.sample(candidate_samples, k=args.limit_samples)
+    else:
+        selected_samples = candidate_samples[: args.limit_samples]
     
     if not selected_samples:
         raise ValueError(f"No {args.query_pop} samples found in VCF. Available: {available_samples[:5]}")
     
-    print(f"Processing {len(selected_samples)} {args.query_pop} samples from VCF")
+    print(
+        f"Processing {len(selected_samples)} {args.query_pop} samples from VCF "
+        f"(strategy={args.sample_strategy}, seed={args.seed})"
+    )
     rows = []
 
     for sample_id in selected_samples:
