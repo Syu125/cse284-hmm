@@ -6,7 +6,7 @@ def plot_ancestry(positions, states, true_switch_idx=None, save_path="ancestry_p
     """
     Creates a karyogram-style plot of the HMM results.
     """
-    val_map = {"YRI": 0, "CEU": 1}
+    val_map = {"YRI": 0, "HET": 1, "CEU": 2}
     y_values = [val_map[s] for s in states]
     
     plt.figure(figsize=(15, 4))
@@ -19,8 +19,8 @@ def plot_ancestry(positions, states, true_switch_idx=None, save_path="ancestry_p
     if true_switch_idx is not None:
         plt.axvline(x=positions[true_switch_idx], color='red', linestyle='--', alpha=0.7, label='Truth Midpoint')
 
-    plt.yticks([0, 1], ["YRI (African)", "CEU (European)"])
-    plt.ylim(-0.2, 1.2)
+    plt.yticks([0, 1, 2], ["YRI (African)", "HET (Mixed)", "CEU (European)"])
+    plt.ylim(-0.2, 2.2)
     plt.title("Local Ancestry Inference: Chromosome 22 (Simulation)")
     plt.xlabel("Physical Position on Chr 22 (bp)")
     plt.legend(loc='center right')

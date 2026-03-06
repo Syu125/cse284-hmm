@@ -22,8 +22,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--rfmix-label-col", default="label", help="Label column in RFMix CSV")
     parser.add_argument(
         "--valid-labels",
-        default="YRI,CEU",
-        help="Comma-separated labels to include in evaluation (default: YRI,CEU)",
+        default="YRI,CEU,HET",
+        help="Comma-separated labels to include in evaluation (default: YRI,CEU,HET)",
     )
     parser.add_argument(
         "--out",

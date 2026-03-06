@@ -79,13 +79,21 @@ def main():
         
         # Run inference
         results = engine.run_viterbi(snp_positions, genotypes, get_cm)
+        labels = [
+            "CEU" if state == "CEU_CEU" else "YRI" if state == "YRI_YRI" else "HET"
+            for state in results
+        ]
         
         # Calculate stats
-        yri_count = results.count("YRI")
-        total = len(results)
+        yri_count = labels.count("YRI")
+        ceu_count = labels.count("CEU")
+        het_count = labels.count("HET")
+        total = len(labels)
         yri_pct = (yri_count / total) * 100
+        ceu_pct = (ceu_count / total) * 100
+        het_pct = (het_count / total) * 100
         
-        population_data.append({"sample_id": sample_id, "yri_pct": yri_pct, "ceu_pct": 100 - yri_pct})
+        population_data.append({"sample_id": sample_id, "yri_pct": yri_pct, "ceu_pct": ceu_pct, "het_pct": het_pct})
         
         if i % 10 == 0:
             print(f"    Progress: {i}/{len(asw_samples)} samples completed...")

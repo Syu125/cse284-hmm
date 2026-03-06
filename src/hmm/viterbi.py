@@ -12,7 +12,7 @@ class InferenceEngine:
     def __init__(self, emission_model, transition_model):
         self.emissions = emission_model
         self.transitions = transition_model
-        self.states = ["YRI", "CEU"]
+        self.states = ["CEU_CEU", "CEU_YRI", "YRI_YRI"]
 
     def run_viterbi(self, snp_positions, genotypes, genetic_map_func):
         """
@@ -21,6 +21,9 @@ class InferenceEngine:
         genetic_map_func: a lambda or function that takes pos and returns cM
         """
         n_snps = len(snp_positions)
+        if n_snps == 0:
+            return []
+
         n_states = len(self.states)
         
         # viterbi[state, snp] stores the max probability to reach that point
@@ -31,8 +34,9 @@ class InferenceEngine:
         # 1. Initialize (First SNP)
         first_pos = snp_positions[0]
         first_em = self.emissions.get_emission_probs(first_pos, genotypes[0])
-        viterbi[0, 0] = np.log(0.5 * first_em["YRI"]) # Log math prevents underflow
-        viterbi[1, 0] = np.log(0.5 * first_em["CEU"])
+        initial_prior = 1.0 / n_states
+        for state_idx, state_name in enumerate(self.states):
+            viterbi[state_idx, 0] = np.log(initial_prior * first_em[state_name])
 
         # 2. Recursion
         for i in range(1, n_snps):
@@ -44,19 +48,14 @@ class InferenceEngine:
                 genetic_map_func(prev_pos), 
                 genetic_map_func(curr_pos)
             )
+            trans_matrix = np.maximum(trans_matrix, 1e-300)
             
             curr_em = self.emissions.get_emission_probs(curr_pos, genotypes[i])
             
             for s in range(n_states):
-                # Calculate: Prev_Viterbi + Log_Transition + Log_Emission
-                # We use Log space because multiplying 10,000 small probabilities 
-                # would result in a number so small a computer can't store it.
-                prob_from_yri = viterbi[0, i-1] + np.log(trans_matrix[0, s])
-                prob_from_ceu = viterbi[1, i-1] + np.log(trans_matrix[1, s])
-                
-                # Pick the best path to this state
-                best_prev = np.argmax([prob_from_yri, prob_from_ceu])
-                viterbi[s, i] = max(prob_from_yri, prob_from_ceu) + np.log(curr_em[self.states[s]])
+                prev_scores = viterbi[:, i-1] + np.log(trans_matrix[:, s])
+                best_prev = int(np.argmax(prev_scores))
+                viterbi[s, i] = float(np.max(prev_scores)) + np.log(curr_em[self.states[s]])
                 backpointer[s, i] = best_prev
 
         # 3. Backtrace

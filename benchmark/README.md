@@ -90,11 +90,11 @@ python benchmark/compare_with_rfmix.py \
   --position-col position \
   --model-label-col label \
   --rfmix-label-col label \
-  --valid-labels YRI,CEU \
   --out benchmark/results/comparison.csv
 ```
 
-By default, comparison includes only labels in `YRI,CEU`, so ambiguous labels like `HET` are excluded from metric calculation.
+By default, comparison includes `YRI,CEU,HET` for full 3-class evaluation.
+To run a homozygous-only diagnostic check, set `--valid-labels YRI,CEU` explicitly.
 
 ## Scripts
 
@@ -117,10 +117,13 @@ python benchmark/export_model_predictions.py --help
 ```
 sample_id,position,label
 NA20509,50001234,YRI
+NA20509,50001888,HET
 NA20509,50002456,YRI  
 NA20509,50003789,CEU
 ...
 ```
+
+`label` is now diploid-aware at export time: homozygous ancestry segments map to `YRI`/`CEU`, and mixed segments map to `HET`.
 
 ### `compare_with_rfmix.py`
 Compare HMM predictions with RFMix results at SNP level.

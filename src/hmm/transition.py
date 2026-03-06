@@ -13,7 +13,7 @@ class TransitionModel:
 
     def get_transition_matrix(self, cm_start, cm_end):
         """
-        Calculates the probability of staying in a state vs switching.
+        Calculates transition probabilities among diploid ancestry states.
         cm_start: genetic position of SNP i
         cm_end: genetic position of SNP i+1
         """
@@ -24,14 +24,16 @@ class TransitionModel:
         # If distance is 0, p_switch is 0.
         p_switch = 1 - np.exp(-self.G * d)
         
-        # 3. Probability of staying
         p_stay = 1 - p_switch
-        
-        # Matrix: [ [Stay, Switch], [Switch, Stay] ]
-        # Rows = Current State (YRI, CEU), Cols = Next State (YRI, CEU)
-        matrix = np.array([
-            [p_stay, p_switch], # From YRI to [YRI, CEU]
-            [p_switch, p_stay]  # From CEU to [YRI, CEU]
-        ])
-        
+
+        # State order: CEU_CEU, CEU_YRI, YRI_YRI
+        matrix = np.array(
+            [
+                [p_stay, p_switch, 0.0],
+                [0.5 * p_switch, p_stay, 0.5 * p_switch],
+                [0.0, p_switch, p_stay],
+            ],
+            dtype=float,
+        )
+
         return matrix

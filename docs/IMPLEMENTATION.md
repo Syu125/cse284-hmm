@@ -6,10 +6,10 @@ This document describes the technical implementation of the HMM for local ancest
 
 ## Project Overview
 
-**Problem**: Determine the ancestry (YRI vs CEU) at each location along the genome for an admixed individual.
+**Problem**: Determine diploid local ancestry (CEU/CEU, CEU/YRI, YRI/YRI) at each location along the genome for an admixed individual.
 
 **Solution**: Use a Hidden Markov Model where:
-- **Hidden states**: Ancestry at each SNP (YRI or CEU)
+- **Hidden states**: Diploid ancestry at each SNP (CEU/CEU, CEU/YRI, YRI/YRI)
 - **Observations**: Genotypes at each SNP
 - **Goal**: Find most likely ancestry sequence given observed genotypes
 
@@ -18,9 +18,10 @@ This document describes the technical implementation of the HMM for local ancest
 ## HMM Architecture
 
 ### States
-Two possible states at each SNP:
-- State 0: YRI ancestry
-- State 1: CEU ancestry
+Three possible diploid states at each SNP:
+- State 0: CEU/CEU ancestry
+- State 1: CEU/YRI mixed ancestry
+- State 2: YRI/YRI ancestry
 
 ### Observations
 Genotypes for each SNP: {0, 1, 2} (number of alternate alleles)

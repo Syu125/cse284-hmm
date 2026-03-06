@@ -131,7 +131,7 @@ def align_predictions(
     pos_col: str,
     model_label_col: str,
     ref_label_col: str,
-    valid_labels: Tuple[str, ...] = ("YRI", "CEU"),
+    valid_labels: Tuple[str, ...] = ("YRI", "CEU", "HET"),
 ) -> pd.DataFrame:
     model = model_df[[sample_col, pos_col, model_label_col]].rename(
         columns={sample_col: "sample_id", pos_col: "position", model_label_col: "model_label"}

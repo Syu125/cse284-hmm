@@ -82,14 +82,20 @@ def main():
         
         get_cm = lambda x: interpolate_genetic_position(x, phys, gen)
         results = engine.run_viterbi(snp_positions, genotypes, get_cm)
+        labels = [
+            "CEU" if state == "CEU_CEU" else "YRI" if state == "YRI_YRI" else "HET"
+            for state in results
+        ]
         
         # 5. Global Stats
-        total = len(results)
-        yri_pct = (results.count("YRI") / total) * 100
-        print(f"    Summary: {yri_pct:.1f}% YRI | {100-yri_pct:.1f}% CEU")
+        total = len(labels)
+        yri_pct = (labels.count("YRI") / total) * 100
+        ceu_pct = (labels.count("CEU") / total) * 100
+        het_pct = (labels.count("HET") / total) * 100
+        print(f"    Summary: {yri_pct:.1f}% YRI | {ceu_pct:.1f}% CEU | {het_pct:.1f}% HET")
 
         # 6. Visualize - ensure unique filename per sample!
-        plot_ancestry(snp_positions, results, save_path=OUTPUT_DIR / f"ancestry_{sample_id}.png")
+        plot_ancestry(snp_positions, labels, save_path=OUTPUT_DIR / f"ancestry_{sample_id}.png")
 
 if __name__ == "__main__":
     main()

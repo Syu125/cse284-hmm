@@ -44,29 +44,46 @@ class EmissionModel:
 
     def get_emission_probs(self, pos, genotype):
         """
-        Calculates P(Genotype | State) for both YRI and CEU.
+        Calculates P(Genotype | State) for diploid ancestry states.
         genotype: tuple (0, 1), (1, 1), etc.
         """
         f_yri = self.yri_freqs.get(pos, 0.5) # Default to 0.5 if SNP missing
         f_ceu = self.ceu_freqs.get(pos, 0.5)
         
-        # Calculate likelihood for YRI state
-        # We use a small epsilon so we never multiply by exactly 0
-        p_yri = self._calc_likelihood(genotype, f_yri)
-        
-        # Calculate likelihood for CEU state
-        p_ceu = self._calc_likelihood(genotype, f_ceu)
-        
-        return {"YRI": p_yri, "CEU": p_ceu}
+        p_ceu_ceu = self._calc_likelihood(genotype, f_ceu, f_ceu)
+        p_yri_yri = self._calc_likelihood(genotype, f_yri, f_yri)
+        p_ceu_yri = self._calc_mixed_likelihood(genotype, f_ceu, f_yri)
 
-    def _calc_likelihood(self, genotype, f):
+        return {
+            "CEU_CEU": p_ceu_ceu,
+            "CEU_YRI": p_ceu_yri,
+            "YRI_YRI": p_yri_yri,
+        }
+
+    def _calc_likelihood(self, genotype, f1, f2):
         """
-        Diploid likelihood: P(a1|f) * P(a2|f)
+        Diploid likelihood with potentially different ancestral frequencies per allele.
         """
-        prob = 1.0
-        for allele in genotype:
-            if allele == 1:
-                prob *= f
-            else:
-                prob *= (1 - f)
+        if genotype is None or len(genotype) < 2:
+            return 0.5
+
+        allele_1 = genotype[0]
+        allele_2 = genotype[1]
+
+        p1 = self._allele_prob(allele_1, f1)
+        p2 = self._allele_prob(allele_2, f2)
+        prob = p1 * p2
         return max(prob, self.epsilon)
+
+    def _calc_mixed_likelihood(self, genotype, f_left, f_right):
+        """Average over the two possible allele-origin orderings for mixed ancestry."""
+        prob_a = self._calc_likelihood(genotype, f_left, f_right)
+        prob_b = self._calc_likelihood(genotype, f_right, f_left)
+        return max(0.5 * (prob_a + prob_b), self.epsilon)
+
+    def _allele_prob(self, allele, f):
+        if allele == 1:
+            return f
+        if allele == 0:
+            return 1 - f
+        return 0.5

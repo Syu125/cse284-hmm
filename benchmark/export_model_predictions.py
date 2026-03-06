@@ -22,6 +22,13 @@ from hmm.transition import TransitionModel
 from hmm.viterbi import InferenceEngine
 
 
+STATE_TO_LABEL = {
+    "CEU_CEU": "CEU",
+    "CEU_YRI": "HET",
+    "YRI_YRI": "YRI",
+}
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Export per-SNP ancestry predictions from your HMM model for downstream benchmarking."
@@ -100,18 +107,20 @@ def main() -> None:
 
         get_cm = lambda position: interpolate_genetic_position(position, phys, gen)
         states = engine.run_viterbi(snp_positions, genotypes, get_cm)
+        labels = [STATE_TO_LABEL.get(state, "HET") for state in states]
 
         rows.extend(
             {
                 "sample_id": sample_id,
                 "position": pos,
-                "label": state,
+                "label": label,
             }
-            for pos, state in zip(snp_positions, states)
+            for pos, label in zip(snp_positions, labels)
         )
 
-        yri_pct = 100.0 * sum(state == "YRI" for state in states) / len(states)
-        print(f"Processed {sample_id}: {len(states):,} SNPs, YRI={yri_pct:.2f}%")
+        yri_pct = 100.0 * sum(label == "YRI" for label in labels) / len(labels)
+        het_pct = 100.0 * sum(label == "HET" for label in labels) / len(labels)
+        print(f"Processed {sample_id}: {len(labels):,} SNPs, YRI={yri_pct:.2f}%, HET={het_pct:.2f}%")
 
     output_path = Path(args.out)
     pd.DataFrame(rows).to_csv(output_path, index=False)
