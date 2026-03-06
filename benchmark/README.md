@@ -58,11 +58,16 @@ See [RFMix documentation](https://github.com/slowkoni/rfmix) for advanced option
 python benchmark/convert_rfmix_to_snp_csv.py \
   --msp benchmark/rfmix_output.msp.tsv \
   --vcf benchmark/data/query_asw_chr22.vcf.gz \
+  --tie-policy unknown \
   --out benchmark/predictions/rfmix_predictions.csv \
   --chromosome 22
 ```
 
 This expands segment-level ancestry calls to individual SNP positions for comparison.
+Heterozygous haplotype segments are handled by `--tie-policy`:
+- `unknown` (default): writes `HET` labels for mixed `(0,1)` segments
+- `drop`: omits mixed segments
+- `ceu` / `yri`: force mixed segments to one ancestry
 
 ### 2. Export HMM Predictions
 
@@ -85,8 +90,11 @@ python benchmark/compare_with_rfmix.py \
   --position-col position \
   --model-label-col label \
   --rfmix-label-col label \
+  --valid-labels YRI,CEU \
   --out benchmark/results/comparison.csv
 ```
+
+By default, comparison includes only labels in `YRI,CEU`, so ambiguous labels like `HET` are excluded from metric calculation.
 
 ## Scripts
 

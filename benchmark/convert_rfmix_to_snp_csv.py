@@ -11,8 +11,43 @@ import pandas as pd
 import pysam
 
 
+def resolve_consensus_label(hap_calls: list[int], tie_policy: str) -> str | None:
+    """Resolve a diploid segment to a benchmark label.
+
+    tie_policy applies when haplotypes are discordant (for example [0, 1]):
+    - "unknown": return "HET" (kept in output for downstream filtering)
+    - "drop": return None (segment omitted)
+    - "ceu": force CEU
+    - "yri": force YRI
+    """
+    if not hap_calls:
+        return None
+
+    if len(hap_calls) == 1:
+        return "CEU" if hap_calls[0] == 0 else "YRI"
+
+    if len(hap_calls) != 2:
+        return None
+
+    h0, h1 = hap_calls
+    if h0 == h1:
+        return "CEU" if h0 == 0 else "YRI"
+
+    if tie_policy == "drop":
+        return None
+    if tie_policy == "ceu":
+        return "CEU"
+    if tie_policy == "yri":
+        return "YRI"
+    return "HET"
+
+
 def convert_msp_to_snp_level(
-    msp_file: str, vcf_file: str, output_file: str, chromosome: str = "22"
+    msp_file: str,
+    vcf_file: str,
+    output_file: str,
+    chromosome: str = "22",
+    tie_policy: str = "unknown",
 ) -> None:
     """
     Expand RFMix segment-level haplotype predictions to per-SNP sample predictions.
@@ -25,7 +60,7 @@ def convert_msp_to_snp_level(
     This function:
     1. Parses haplotype-level calls
     2. For each segment, finds SNPs in that range
-    3. Assigns consensus ancestry (majority of two haplotypes) to sample
+    3. Assigns consensus ancestry to sample with explicit heterozygous handling
     4. Writes SNP-level CSV: sample_id, position, label
     """
     print(f"[-] Reading RFMix segments from {msp_file}...")
@@ -76,11 +111,10 @@ def convert_msp_to_snp_level(
     snp_positions = sorted(set(snp_positions))
     print(f"    Found {len(snp_positions):,} unique SNP positions")
 
-    # Ancestry mappings: 0=CEU, 1=YRI (from RFMix header)
-    ancestry_map = {0: "CEU", 1: "YRI"}
-
     # Expand segments to SNPs
     snp_rows = []
+    tie_segments = 0
+    dropped_ties = 0
     for _, segment in msp_df.iterrows():
         start_pos = int(segment["spos"])
         end_pos = int(segment["epos"])
@@ -100,15 +134,17 @@ def convert_msp_to_snp_level(
                     except (ValueError, TypeError):
                         continue
 
-            # Consensus: if both haplotypes match, use that; else use majority
-            if len(hap_calls) == 2:
-                consensus = int(round(sum(hap_calls) / len(hap_calls)))
-            elif len(hap_calls) == 1:
-                consensus = hap_calls[0]
-            else:
+            if not hap_calls:
                 continue  # Skip if no valid calls
 
-            ancestry = ancestry_map.get(consensus, "unknown")
+            if len(hap_calls) == 2 and hap_calls[0] != hap_calls[1]:
+                tie_segments += 1
+
+            ancestry = resolve_consensus_label(hap_calls, tie_policy)
+            if ancestry is None:
+                if len(hap_calls) == 2 and hap_calls[0] != hap_calls[1]:
+                    dropped_ties += 1
+                continue
 
             # Assign this ancestry to all SNPs in segment
             for snp_pos in snps_in_segment:
@@ -117,6 +153,10 @@ def convert_msp_to_snp_level(
     output_df = pd.DataFrame(snp_rows).sort_values(["sample_id", "position"]).reset_index(drop=True)
     output_df.to_csv(output_file, index=False)
 
+    print(f"[+] Tie policy: {tie_policy}")
+    print(f"[+] Heterozygous segments observed: {tie_segments:,}")
+    if tie_policy == "drop":
+        print(f"[+] Heterozygous segments dropped: {dropped_ties:,}")
     print(f"[+] Converted {len(snp_rows):,} SNPs across {output_df['sample_id'].nunique()} samples")
     print(f"[+] Saved to {Path(output_file).resolve()}")
 
@@ -127,9 +167,15 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--vcf", required=True, help="VCF file (to get SNP positions)")
     parser.add_argument("--out", default="rfmix_snp_level.csv", help="Output CSV path")
     parser.add_argument("--chromosome", default="22", help="Chromosome identifier")
+    parser.add_argument(
+        "--tie-policy",
+        choices=["unknown", "drop", "ceu", "yri"],
+        default="unknown",
+        help="How to handle heterozygous haplotype segments (default: unknown)",
+    )
     return parser
 
 
 if __name__ == "__main__":
     args = build_parser().parse_args()
-    convert_msp_to_snp_level(args.msp, args.vcf, args.out, args.chromosome)
+    convert_msp_to_snp_level(args.msp, args.vcf, args.out, args.chromosome, args.tie_policy)

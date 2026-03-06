@@ -131,6 +131,7 @@ def align_predictions(
     pos_col: str,
     model_label_col: str,
     ref_label_col: str,
+    valid_labels: Tuple[str, ...] = ("YRI", "CEU"),
 ) -> pd.DataFrame:
     model = model_df[[sample_col, pos_col, model_label_col]].rename(
         columns={sample_col: "sample_id", pos_col: "position", model_label_col: "model_label"}
@@ -143,4 +144,9 @@ def align_predictions(
     ref["ref_label"] = normalize_labels(ref["ref_label"])
 
     aligned = model.merge(ref, on=["sample_id", "position"], how="inner")
+    if valid_labels:
+        valid = set(valid_labels)
+        aligned = aligned[
+            aligned["model_label"].isin(valid) & aligned["ref_label"].isin(valid)
+        ]
     return aligned.sort_values(["sample_id", "position"]).reset_index(drop=True)

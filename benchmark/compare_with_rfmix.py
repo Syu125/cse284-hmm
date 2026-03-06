@@ -21,6 +21,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--model-label-col", default="label", help="Label column in your model CSV")
     parser.add_argument("--rfmix-label-col", default="label", help="Label column in RFMix CSV")
     parser.add_argument(
+        "--valid-labels",
+        default="YRI,CEU",
+        help="Comma-separated labels to include in evaluation (default: YRI,CEU)",
+    )
+    parser.add_argument(
         "--out",
         default="rfmix_comparison_summary.csv",
         help="Output CSV path for per-sample metrics",
@@ -34,6 +39,7 @@ def main() -> None:
 
     model_df = pd.read_csv(args.model)
     rfmix_df = pd.read_csv(args.rfmix)
+    valid_labels = tuple(label.strip().upper() for label in args.valid_labels.split(",") if label.strip())
 
     aligned = align_predictions(
         model_df=model_df,
@@ -42,11 +48,12 @@ def main() -> None:
         pos_col=args.position_col,
         model_label_col=args.model_label_col,
         ref_label_col=args.rfmix_label_col,
+        valid_labels=valid_labels,
     )
 
     if aligned.empty:
         raise ValueError(
-            "No overlapping rows after alignment. Confirm sample/position columns and preprocessing match."
+            "No evaluable overlapping rows after alignment/filtering. Confirm sample/position columns and label filters."
         )
 
     per_sample_rows = []
