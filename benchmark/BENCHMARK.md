@@ -17,7 +17,7 @@ benchmark/
     └── .gitkeep
 ```
 
-## Quick Start
+## Running the Benchmark
 
 ### 0. Install & Run RFMix (Optional - for comparison)
 
@@ -96,112 +96,17 @@ python benchmark/compare_with_rfmix.py \
 By default, comparison includes `YRI,CEU,HET` for full 3-class evaluation.
 To run a homozygous-only diagnostic check, set `--valid-labels YRI,CEU` explicitly.
 
-## Scripts
+## Benchmark Results
 
-### `export_model_predictions.py`
-Export per-SNP ancestry predictions from your HMM model for benchmarking.
+The following results use full 3-class evaluation (`YRI`, `CEU`, `HET`) on the chr22 slice.
 
-**Usage**:
-```bash
-python benchmark/export_model_predictions.py --help
-```
+| Samples Compared | Aligned Rows | Mean Concordance | Mean Kappa |
+|------------------|-------------:|-----------------:|-----------:|
+| 5                | 79,730       | 0.8425           | 0.6828     |
+| 20               | 318,920      | 0.7765           | 0.4844     |
+| 50               | 797,300      | 0.8326           | 0.4853     |
 
-**Required arguments**:
-- `--vcf`: Path to query VCF file
-- `--panel`: Path to sample panel file
-- `--map`: Path to genetic map file
-- `--query-pop`: Population code (e.g., ASW)
-- `--out`: Output CSV file path
-
-**Output format**:
-```
-sample_id,position,label
-NA20509,50001234,YRI
-NA20509,50001888,HET
-NA20509,50002456,YRI  
-NA20509,50003789,CEU
-...
-```
-
-`label` is now diploid-aware at export time: homozygous ancestry segments map to `YRI`/`CEU`, and mixed segments map to `HET`.
-
-### `compare_with_rfmix.py`
-Compare HMM predictions with RFMix results at SNP level.
-
-**Usage**:
-```bash
-python benchmark/compare_with_rfmix.py --help
-```
-
-**Output metrics**:
-- Concordance: % agreement between methods
-- Cohen's kappa: Adjusted agreement (0-1, higher is better)
-- Switches per Mb: Ancestry switch rate
-- Tract lengths: Median and mean ancestry tract sizes
-- Ancestry composition: % YRI vs %CEU difference
-
-### `metrics.py`
-Utility functions for computing evaluation metrics.
-
-**Functions**:
-- `compute_concordance()` - SNP-level agreement
-- `compute_kappa()` - Cohen's kappa statistic
-- `compute_switch_rate()` - Ancestry switch statistics
-- `compute_tract_lengths()` - Ancestry tract analysis
-
-### `convert_rfmix_to_snp_csv.py`
-Convert RFMix output files to SNP-level CSV format.
-
-**RFMix outputs**:
-- `.msp.tsv` - Ancestry state per segment
-- `.sis.tsv` - Posterior probabilities
-- `.rfmix.Q` - Global ancestry proportions
-
-## Results
-
-### `rfmix_slice_snp_level.csv`
-SNP-level comparison on chromosome 22 slice:
-- Sample count: 20 ASW samples
-- SNP count: ~20k variants
-- Concordance: ~93-95%
-
-### `rfmix_comparison_summary.csv`
-Summary statistics from RFMix comparison:
-- Per-sample metrics
-- Population-level aggregates
-- Ancestry composition estimates
-
-## Expected Results
-
-### Typical Concordance
-| Dataset | Concordance | Cohen's Kappa |
-|---------|------------|---------------|
-| Slice (20k SNPs) | 90-95% | 0.85-0.92 |
-| Full (490k SNPs) | 92-96% | 0.88-0.94 |
-
-**Note**: Exact values depend on:
-- HMM parameter tuning (generations, prior)
-- RFMix parameter settings
-- Population-specific differences
-
-## Troubleshooting
-
-### Export script fails: "Sample not found"
-- Check query population code matches panel file
-- Verify VCF file contains samples from that population
-- Review the panel file to list available population codes
-
-### Comparison script gives low concordance
-- Check both files use same position/label columns
-- Verify identical SNP set is being compared
-- Compare specific samples with `--verbose` flag
-
-### Missing predictions
-- Ensure HMM model ran successfully (check `outputs/` folder)
-- Verify data files exist and have correct format
-- Check for memory/timeout errors in stdout
-
-## For More Information
-
-- [USAGE.md](../docs/USAGE.md) for running analyses
-- [IMPLEMENTATION.md](../docs/IMPLEMENTATION.md) for technical details
+### Notes
+- The 20- and 50-sample runs show similar kappa values, suggesting stable chance-adjusted agreement as sample size increases.
+- Concordance varies more with sample composition, so kappa is the primary comparison metric.
+- Binary-only evaluation (`--valid-labels YRI,CEU`) is retained only for diagnostic sanity checks and is not used as the headline result.
