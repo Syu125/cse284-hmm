@@ -4,7 +4,7 @@ Implementation of a Hidden Markov Model for inferring local ancestry using the V
 
 ## Quick Start
 
-Before creating the environment, please make sure you have all the necessary system requirements. They can be found [here](docs/SETUP.md).
+Before creating the environment, please make sure you have all the necessary system requirements needed to run the following commands. More information can be found [here](docs/SETUP.md).
 
 ```bash
 # 1. Create conda environment
@@ -20,8 +20,7 @@ python scripts/02_population_analysis.py
 ```
 ## Benchmark
 Benchmark uses a 3-class comparison (`YRI`, `CEU`, `HET`) by default.
-For complete benchmark setup, commands, options, and troubleshooting, see [benchmark/README.md](benchmark/README.md).
-Use `--valid-labels YRI,CEU` only as a homozygous-only diagnostic mode.
+For complete benchmark setup and analysis, see [BENCHMARK.md](benchmark/BENCHMARK.md).
 
 ## Applying to a Dataset
 
@@ -38,20 +37,27 @@ This project is applied to a **public dataset** from the **1000 Genomes Project*
 - **Benchmark comparison against RFMix** (same public data slice) via `benchmark/`
 	- Produces concordance/kappa and tract-level metrics in `benchmark/results/`
 
+### Interpretation summary
+- On the chr22 slice benchmark, 3-class agreement (`YRI`, `CEU`, `HET`) is strong overall, with mean concordance around **0.78–0.84** depending on sample set.
+- Chance-adjusted agreement (Cohen's kappa) is in the **moderate-to-substantial** range (~**0.48–0.68**), indicating non-trivial agreement beyond class prevalence effects.
+- In repeated sample-size sweeps, metric variance decreases as sample size increases (notably at `N=50`), suggesting more stable evaluation at larger cohort sizes.
+- For this reason, kappa and stability trends are treated as primary evidence, while binary-only labels are used only as diagnostics.
+
 ## Project Structure
 
 ```
 cse284-hmm/
 ├── benchmark/                   # RFMix Benchmarking
-│   |── data/
 │   ├── predictions/
 │   |── results/
+│   ├── BENCHMARK.md			 # Writeup for benchmark procedure and results
 │   ├── compare_with_rfmix.py
 │   ├── convert_rfmix_to_snp_csv.py
 │   ├── export_model_predictions.py
 │   ├── fix_genetic_map.py
 │   ├── metrics.py
-│   └── prepare_benchmark_data.py
+│   ├── prepare_benchmark_data.py
+│   └── run_sample_size_sweep.py
 |
 ├── data/                           # Data management
 │   |── cache/                     # Auto-generated frequency caches
@@ -60,8 +66,7 @@ cse284-hmm/
 │   └── prepare_data.sh            # Consolidated download & prep script
 │
 ├── docs/                            # Documentation
-|   ├── SETUP.md                   # How to setup environment and download data
-|   └── IMPLEMENTATION.md          # Breakdown of the HMM
+|   └── SETUP.md                   # How to setup environment and download data
 │
 ├── scripts/                         # Analysis Workflows
 │   ├── output/                    # Output folder for the two scripts
@@ -81,20 +86,16 @@ cse284-hmm/
 ```
 
 ## LLM Usage
-
-LLM tools were used as a **coding assistant** during development for tasks such as:
-- clarifying implementation ideas and debugging strategy,
-- improving code readability and documentation wording,
-- checking command usage and script organization.
-
-All core modeling decisions (HMM design, emissions/transitions, Viterbi workflow, dataset choice, and result interpretation) were selected and validated by me. I manually reviewed generated suggestions, ran the code locally, and kept only changes that matched project requirements and observed outputs.
-
-LLM assistance was used to accelerate iteration, not to replace understanding or independent verification.
+I used LLM assistance to help with the following:
+- Reviewing my hmm implementation and helping to debug issues/make improvements
+- Revising documentation structure and tone
+- Organizing my files and adding comments
 
 ## Citation
 
 > The 1000 Genomes Project Consortium. (2015). A global reference for human genetic variation. *Nature*, 526(7571), 68-74.
 
 ## References
+
 
 Viterbi, A. (1967). Error bounds for convolutional codes and an asymptotically optimum decoding algorithm. *IEEE Transactions on Information Theory*.
