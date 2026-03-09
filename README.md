@@ -26,7 +26,27 @@ For complete benchmark setup, commands, options, and troubleshooting, see [bench
 Use `--valid-labels YRI,CEU` only as a homozygous-only diagnostic mode.
 
 ## Applying to a Dataset
-*Note: This is also on my TODO - not implemented yet.*
+
+This project is applied to a **public dataset** from the **1000 Genomes Project** (chromosome 22), including admixed **ASW** individuals.
+
+### What is implemented
+- **Per-sample real-data inference** via `scripts/01_real_sample_analysis.py`
+	- Runs local ancestry inference on real ASW samples
+	- Produces per-individual ancestry summaries and ancestry painting plots in `scripts/output/`
+- **Population-level analysis** via `scripts/02_population_analysis.py`
+	- Runs inference across ASW samples
+	- Exports population summary statistics to `scripts/output/asw_ancestry_results.csv`
+	- Produces a distribution plot `scripts/output/asw_population_histogram.png`
+- **Benchmark comparison against RFMix** (same public data slice) via `benchmark/`
+	- Produces concordance/kappa and tract-level metrics in `benchmark/results/`
+
+### Interpretation summary
+- On the chr22 slice benchmark, 3-class agreement (`YRI`, `CEU`, `HET`) is strong overall, with mean concordance around **0.78–0.84** depending on sample set.
+- Chance-adjusted agreement (Cohen's kappa) is in the **moderate-to-substantial** range (~**0.48–0.68**), indicating non-trivial agreement beyond class prevalence effects.
+- In repeated sample-size sweeps, metric variance decreases as sample size increases (notably at `N=50`), suggesting more stable evaluation at larger cohort sizes.
+- For this reason, kappa and stability trends are treated as primary evidence, while binary-only labels are used only as diagnostics.
+
+See `benchmark/BENCHMARK.md` for full commands, tables, and detailed interpretation.
 
 ## Project Structure
 
