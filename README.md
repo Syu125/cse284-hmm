@@ -4,7 +4,7 @@ Implementation of a Hidden Markov Model for inferring local ancestry using the V
 
 ## Quick Start
 
-Before creating the environment, please make sure you have all the necessary system requirements. They can be found [here](docs/SETUP.md).
+Before creating the environment, please make sure you have all the necessary system requirements needed to run the following commands. More information can be found [here](docs/SETUP.md).
 
 ```bash
 # 1. Create conda environment
@@ -20,8 +20,7 @@ python scripts/02_population_analysis.py
 ```
 ## Benchmark
 Benchmark uses a 3-class comparison (`YRI`, `CEU`, `HET`) by default.
-For complete benchmark setup, commands, options, and troubleshooting, see [benchmark/README.md](benchmark/README.md).
-Use `--valid-labels YRI,CEU` only as a homozygous-only diagnostic mode.
+For complete benchmark setup and analysis, see [BENCHMARK.md](benchmark/BENCHMARK.md).
 
 ## Applying to a Dataset
 
@@ -44,22 +43,21 @@ This project is applied to a **public dataset** from the **1000 Genomes Project*
 - In repeated sample-size sweeps, metric variance decreases as sample size increases (notably at `N=50`), suggesting more stable evaluation at larger cohort sizes.
 - For this reason, kappa and stability trends are treated as primary evidence, while binary-only labels are used only as diagnostics.
 
-See `benchmark/BENCHMARK.md` for full commands, tables, and detailed interpretation.
-
 ## Project Structure
 
 ```
 cse284-hmm/
 ├── benchmark/                   # RFMix Benchmarking
-│   |── data/
 │   ├── predictions/
 │   |── results/
+│   ├── BENCHMARK.md			 # Writeup for benchmark procedure and results
 │   ├── compare_with_rfmix.py
 │   ├── convert_rfmix_to_snp_csv.py
 │   ├── export_model_predictions.py
 │   ├── fix_genetic_map.py
 │   ├── metrics.py
-│   └── prepare_benchmark_data.py
+│   ├── prepare_benchmark_data.py
+│   └── run_sample_size_sweep.py
 |
 ├── data/                           # Data management
 │   |── cache/                     # Auto-generated frequency caches
@@ -68,8 +66,7 @@ cse284-hmm/
 │   └── prepare_data.sh            # Consolidated download & prep script
 │
 ├── docs/                            # Documentation
-|   ├── SETUP.md                   # How to setup environment and download data
-|   └── IMPLEMENTATION.md          # Breakdown of the HMM
+|   └── SETUP.md                   # How to setup environment and download data
 │
 ├── scripts/                         # Analysis Workflows
 │   ├── output/                    # Output folder for the two scripts
@@ -93,5 +90,6 @@ cse284-hmm/
 > The 1000 Genomes Project Consortium. (2015). A global reference for human genetic variation. *Nature*, 526(7571), 68-74.
 
 ## References
+
 
 Viterbi, A. (1967). Error bounds for convolutional codes and an asymptotically optimum decoding algorithm. *IEEE Transactions on Information Theory*.
