@@ -19,8 +19,6 @@ python scripts/01_real_sample_analysis.py
 python scripts/02_population_analysis.py
 ```
 ## Benchmark
-*Note: I'm still working on this. The benchmark script is complete, but I still need to analyze and evaluate the results.*
-
 Benchmark uses a 3-class comparison (`YRI`, `CEU`, `HET`) by default.
 For complete benchmark setup, commands, options, and troubleshooting, see [benchmark/README.md](benchmark/README.md).
 Use `--valid-labels YRI,CEU` only as a homozygous-only diagnostic mode.
