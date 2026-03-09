@@ -38,14 +38,6 @@ This project is applied to a **public dataset** from the **1000 Genomes Project*
 - **Benchmark comparison against RFMix** (same public data slice) via `benchmark/`
 	- Produces concordance/kappa and tract-level metrics in `benchmark/results/`
 
-### Interpretation summary
-- On the chr22 slice benchmark, 3-class agreement (`YRI`, `CEU`, `HET`) is strong overall, with mean concordance around **0.78–0.84** depending on sample set.
-- Chance-adjusted agreement (Cohen's kappa) is in the **moderate-to-substantial** range (~**0.48–0.68**), indicating non-trivial agreement beyond class prevalence effects.
-- In repeated sample-size sweeps, metric variance decreases as sample size increases (notably at `N=50`), suggesting more stable evaluation at larger cohort sizes.
-- For this reason, kappa and stability trends are treated as primary evidence, while binary-only labels are used only as diagnostics.
-
-See `benchmark/BENCHMARK.md` for full commands, tables, and detailed interpretation.
-
 ## Project Structure
 
 ```
@@ -87,6 +79,17 @@ cse284-hmm/
 ├── environment.yml                # Necessary libraries to install in environment
 └── README.md                      # This
 ```
+
+## LLM Usage
+
+LLM tools were used as a **coding assistant** during development for tasks such as:
+- clarifying implementation ideas and debugging strategy,
+- improving code readability and documentation wording,
+- checking command usage and script organization.
+
+All core modeling decisions (HMM design, emissions/transitions, Viterbi workflow, dataset choice, and result interpretation) were selected and validated by me. I manually reviewed generated suggestions, ran the code locally, and kept only changes that matched project requirements and observed outputs.
+
+LLM assistance was used to accelerate iteration, not to replace understanding or independent verification.
 
 ## Citation
 
