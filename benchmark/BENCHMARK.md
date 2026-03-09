@@ -116,17 +116,6 @@ Outputs:
 
 The following results use full 3-class evaluation (`YRI`, `CEU`, `HET`) on the chr22 slice.
 
-| Samples Compared | Aligned Rows | Mean Concordance | Mean Kappa |
-|------------------|-------------:|-----------------:|-----------:|
-| 5                | 79,730       | 0.8425           | 0.6828     |
-| 20               | 318,920      | 0.7765           | 0.4844     |
-| 50               | 797,300      | 0.8326           | 0.4853     |
-
-### Notes
-- The 20- and 50-sample runs show similar kappa values, suggesting stable chance-adjusted agreement as sample size increases.
-- Concordance varies more with sample composition, so kappa is the primary comparison metric.
-- Binary-only evaluation (`--valid-labels YRI,CEU`) is retained only for diagnostic sanity checks and is not used as the headline result.
-
 ### Sample-Size Sweep (5 Random Repeats per N)
 
 Using `run_sample_size_sweep.py` with `--sample-strategy random` and seeds `0,1,2,3,4`:
