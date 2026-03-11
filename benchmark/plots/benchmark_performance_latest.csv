@@ -1,0 +1,4 @@
+run_id,method,task,runtime_seconds,peak_memory_kb,peak_memory_gb
+20260311T183048Z,hmm,model_export,13.678,115152.0,0.1098175048828125
+20260311T183048Z,flare,flare_inference,1.389,227660.0,0.21711349487304688
+20260311T183048Z,rfmix,rfmix_inference,17.939,361276.0,0.3445396423339844
