@@ -17,49 +17,36 @@ class EmissionModel:
         self.yri_freqs = yri_freqs
         self.ceu_freqs = ceu_freqs
         self.epsilon = epsilon
+        # Haplotype-level ancestry states (K states, K=2 for this project).
+        self.states = ["CEU", "YRI"]
 
-    def get_log_emission(self, state, genotype, position):
-        # Get the frequency for the given state (YRI or CEU)
-        freqs = self.yri_freqs if state == "YRI" else self.ceu_freqs
-        
-        # If the SNP position isn't in our frequency dict, return a neutral log-prob
-        if position not in freqs:
-            return np.log(0.5)
-            
-        p = freqs[position]
-        
-        # Basic emission logic: 
-        # Probability of observing genotype (0,0), (0,1), or (1,1) given allele frequency p
-        # We add epsilon to prevent log(0) errors
-        if genotype == (0, 0):
-            prob = (1 - p)**2
-        elif genotype == (0, 1) or genotype == (1, 0):
-            prob = 2 * p * (1 - p)
-        elif genotype == (1, 1):
-            prob = p**2
-        else:
-            prob = 0.5 # Fallback
-            
-        return np.log(max(prob, self.epsilon))
+    def get_haplotype_emission_probs(self, pos, allele):
+        """
+        Calculates P(allele | ancestry_state) for a single phased haplotype.
+        allele: 0 or 1.
+        """
+        f_yri = self.yri_freqs.get(pos, 0.5)
+        f_ceu = self.ceu_freqs.get(pos, 0.5)
+
+        return {
+            "CEU": max(self._allele_prob(allele, f_ceu), self.epsilon),
+            "YRI": max(self._allele_prob(allele, f_yri), self.epsilon),
+        }
 
     def get_emission_probs(self, pos, genotype):
         """
-        Calculates P(Genotype | State) for phased diploid ancestry states.
+        Backward-compatible diploid ancestry likelihoods for homogeneous states.
         genotype: tuple (0, 1), (1, 1), etc.
+
+        Returns:
+            dict with keys {"CEU", "YRI"}.
         """
         f_yri = self.yri_freqs.get(pos, 0.5) # Default to 0.5 if SNP missing
         f_ceu = self.ceu_freqs.get(pos, 0.5)
-        
-        p_ceu_ceu = self._calc_likelihood(genotype, f_ceu, f_ceu)
-        p_yri_yri = self._calc_likelihood(genotype, f_yri, f_yri)
-        p_ceu_yri = self._calc_likelihood(genotype, f_ceu, f_yri)
-        p_yri_ceu = self._calc_likelihood(genotype, f_yri, f_ceu)
 
         return {
-            "CEU_CEU": p_ceu_ceu,
-            "CEU_YRI": p_ceu_yri,
-            "YRI_CEU": p_yri_ceu,
-            "YRI_YRI": p_yri_yri,
+            "CEU": self._calc_likelihood(genotype, f_ceu, f_ceu),
+            "YRI": self._calc_likelihood(genotype, f_yri, f_yri),
         }
 
     def _calc_likelihood(self, genotype, f1, f2):

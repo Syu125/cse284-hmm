@@ -5,7 +5,12 @@ def plot_ancestry(positions, states, true_switch_idx=None, save_path="ancestry_p
     Creates a karyogram-style plot of the HMM results.
     """
     # Support both legacy 3-state labels and phased 4-state labels.
-    if any(s in {"CEU_YRI", "YRI_CEU"} for s in states):
+    if set(states).issubset({"CEU", "YRI"}):
+        val_map = {"YRI": 0, "CEU": 1}
+        ytick_positions = [0, 1]
+        ytick_labels = ["YRI", "CEU"]
+        y_min, y_max = -0.2, 1.2
+    elif any(s in {"CEU_YRI", "YRI_CEU"} for s in states):
         val_map = {"YRI_YRI": 0, "YRI_CEU": 1, "CEU_YRI": 2, "CEU_CEU": 3}
         ytick_positions = [0, 1, 2, 3]
         ytick_labels = ["YRI/YRI", "YRI|CEU", "CEU|YRI", "CEU/CEU"]

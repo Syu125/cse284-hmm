@@ -87,24 +87,23 @@ def main():
         engine = InferenceEngine(emissions, transitions)
         
         get_cm = lambda x: interpolate_genetic_position(x, phys, gen)
-        states = engine.run_viterbi(snp_positions, genotypes, get_cm)
+        hap1_states, hap2_states = engine.run_viterbi_phased(snp_positions, genotypes, get_cm)
         
         # 5. Global Stats
-        total = len(states)
-        yri_yri_pct = (states.count("YRI_YRI") / total) * 100
-        yri_ceu_pct = (states.count("YRI_CEU") / total) * 100
-        ceu_yri_pct = (states.count("CEU_YRI") / total) * 100
-        ceu_ceu_pct = (states.count("CEU_CEU") / total) * 100
+        total = len(hap1_states)
+        hap1_yri_pct = (hap1_states.count("YRI") / total) * 100
+        hap2_yri_pct = (hap2_states.count("YRI") / total) * 100
+        hap1_ceu_pct = 100.0 - hap1_yri_pct
+        hap2_ceu_pct = 100.0 - hap2_yri_pct
         print(
             "    Summary: "
-            f"{yri_yri_pct:.1f}% YRI_YRI | "
-            f"{yri_ceu_pct:.1f}% YRI_CEU | "
-            f"{ceu_yri_pct:.1f}% CEU_YRI | "
-            f"{ceu_ceu_pct:.1f}% CEU_CEU"
+            f"Hap1 YRI={hap1_yri_pct:.1f}% CEU={hap1_ceu_pct:.1f}% | "
+            f"Hap2 YRI={hap2_yri_pct:.1f}% CEU={hap2_ceu_pct:.1f}%"
         )
 
         # 6. Visualize - ensure unique filename per sample!
-        plot_ancestry(snp_positions, states, save_path=OUTPUT_DIR / f"ancestry_{sample_id}.png")
+        plot_ancestry(snp_positions, hap1_states, save_path=OUTPUT_DIR / f"ancestry_{sample_id}_hap1.png")
+        plot_ancestry(snp_positions, hap2_states, save_path=OUTPUT_DIR / f"ancestry_{sample_id}_hap2.png")
 
 if __name__ == "__main__":
     main()

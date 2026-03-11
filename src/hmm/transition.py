@@ -10,10 +10,12 @@ import numpy as np
 class TransitionModel:
     def __init__(self, generations=10):
         self.G = generations # Generations since admixture
+        # Haplotype-level ancestry states (K states, K=2 for this project).
+        self.states = ["CEU", "YRI"]
 
     def get_transition_matrix(self, cm_start, cm_end):
         """
-        Calculates transition probabilities among phased diploid ancestry states.
+        Calculates transition probabilities among haplotype ancestry states.
         cm_start: genetic position of SNP i
         cm_end: genetic position of SNP i+1
         """
@@ -26,24 +28,13 @@ class TransitionModel:
         
         p_stay = 1 - p_switch
 
-        # State order: CEU_CEU, CEU_YRI, YRI_CEU, YRI_YRI
-        haplotypes = ["CEU", "YRI"]
-        states = [
-            ("CEU", "CEU"),
-            ("CEU", "YRI"),
-            ("YRI", "CEU"),
-            ("YRI", "YRI"),
-        ]
-
-        hap_transition = {
-            (src, dst): (p_stay if src == dst else p_switch)
-            for src in haplotypes
-            for dst in haplotypes
-        }
-
-        matrix = np.zeros((len(states), len(states)), dtype=float)
-        for i, (h1_src, h2_src) in enumerate(states):
-            for j, (h1_dst, h2_dst) in enumerate(states):
-                matrix[i, j] = hap_transition[(h1_src, h1_dst)] * hap_transition[(h2_src, h2_dst)]
+        # State order: CEU, YRI
+        matrix = np.array(
+            [
+                [p_stay, p_switch],
+                [p_switch, p_stay],
+            ],
+            dtype=float,
+        )
 
         return matrix

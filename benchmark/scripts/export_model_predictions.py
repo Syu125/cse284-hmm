@@ -141,17 +141,22 @@ def main() -> None:
             continue
 
         get_cm = lambda position: interpolate_genetic_position(position, phys, gen)
-        states = engine.run_viterbi(snp_positions, genotypes, get_cm)
+        hap1_states, hap2_states = engine.run_viterbi_phased(snp_positions, genotypes, get_cm)
+        states = engine.combine_haplotype_states(hap1_states, hap2_states)
         labels = [STATE_TO_LABEL.get(state, "HET") for state in states]
 
         rows.extend(
             {
                 "sample_id": sample_id,
                 "position": pos,
+                "hap1_state": hap1_state,
+                "hap2_state": hap2_state,
                 "state": state,
                 "label": label,
             }
-            for pos, state, label in zip(snp_positions, states, labels)
+            for pos, hap1_state, hap2_state, state, label in zip(
+                snp_positions, hap1_states, hap2_states, states, labels
+            )
         )
 
         yri_pct = 100.0 * sum(label == "YRI" for label in labels) / len(labels)

@@ -84,29 +84,26 @@ def main():
             continue
         
         # Run inference
-        states = engine.run_viterbi(snp_positions, genotypes, get_cm)
+        hap1_states, hap2_states = engine.run_viterbi_phased(snp_positions, genotypes, get_cm)
         
         # Calculate stats
-        yri_yri_count = states.count("YRI_YRI")
-        yri_ceu_count = states.count("YRI_CEU")
-        ceu_yri_count = states.count("CEU_YRI")
-        ceu_ceu_count = states.count("CEU_CEU")
-        total = len(states)
+        total = len(hap1_states)
+        hap1_yri_pct = 100.0 * sum(state == "YRI" for state in hap1_states) / total
+        hap2_yri_pct = 100.0 * sum(state == "YRI" for state in hap2_states) / total
+        hap1_ceu_pct = 100.0 - hap1_yri_pct
+        hap2_ceu_pct = 100.0 - hap2_yri_pct
 
-        yri_pct = (yri_yri_count / total) * 100
-        ceu_pct = (ceu_ceu_count / total) * 100
-        yri_ceu_pct = (yri_ceu_count / total) * 100
-        ceu_yri_pct = (ceu_yri_count / total) * 100
-        het_pct = ((yri_ceu_count + ceu_yri_count) / total) * 100
+        # Keep compatibility with previous downstream plotting by using mean YRI across haplotypes.
+        yri_pct = 0.5 * (hap1_yri_pct + hap2_yri_pct)
 
         population_data.append(
             {
                 "sample_id": sample_id,
                 "yri_pct": yri_pct,
-                "ceu_pct": ceu_pct,
-                "yri_ceu_pct": yri_ceu_pct,
-                "ceu_yri_pct": ceu_yri_pct,
-                "het_pct": het_pct,
+                "hap1_yri_pct": hap1_yri_pct,
+                "hap1_ceu_pct": hap1_ceu_pct,
+                "hap2_yri_pct": hap2_yri_pct,
+                "hap2_ceu_pct": hap2_ceu_pct,
             }
         )
         
