@@ -26,9 +26,6 @@ outputs/**/*.csv
 outputs/**/*.json
 outputs/**/*.pdf
 
-# Model predictions and evaluation results
-benchmark/predictions/**/*.csv
-
 # ============================================================================
 # Python Development
 # ============================================================================

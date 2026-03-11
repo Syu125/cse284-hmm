@@ -37,12 +37,12 @@ def build_parser() -> argparse.ArgumentParser:
 
     parser.add_argument(
         "--rfmix",
-        default="benchmark/predictions/rfmix_predictions.csv",
+        default="benchmark/predictions/rfmix/rfmix_predictions.csv",
         help="RFMix SNP-level predictions CSV",
     )
     parser.add_argument(
         "--flare",
-        default="benchmark/predictions/flare_predictions.csv",
+        default="benchmark/predictions/flare/flare_predictions.csv",
         help="FLARE SNP-level predictions CSV",
     )
     parser.add_argument("--valid-labels", default="YRI,CEU,HET")
@@ -67,6 +67,16 @@ def main() -> None:
     results_dir = Path(args.results_dir)
     predictions_dir.mkdir(parents=True, exist_ok=True)
     results_dir.mkdir(parents=True, exist_ok=True)
+    sweep_dir = results_dir / "sweep"
+    sweep_dir.mkdir(parents=True, exist_ok=True)
+
+    pair_output_dirs = {
+        "hmm_vs_rfmix": results_dir / "hmm-v-rfmix",
+        "hmm_vs_flare": results_dir / "hmm-v-flare",
+        "flare_vs_rfmix": results_dir / "flare-v-rfmix",
+    }
+    for directory in pair_output_dirs.values():
+        directory.mkdir(parents=True, exist_ok=True)
 
     rfmix_path = Path(args.rfmix)
     flare_path = Path(args.flare)
@@ -83,7 +93,16 @@ def main() -> None:
 
     for sample_size in sample_sizes:
         for seed in seeds:
-            model_out = predictions_dir / f"model_predictions_n{sample_size}_seed{seed}.csv"
+            size_dir_name = f"n{sample_size}"
+
+            model_method_dir = predictions_dir / "model" / size_dir_name
+            flare_method_dir = predictions_dir / "flare" / size_dir_name
+            rfmix_method_dir = predictions_dir / "rfmix" / size_dir_name
+            model_method_dir.mkdir(parents=True, exist_ok=True)
+            flare_method_dir.mkdir(parents=True, exist_ok=True)
+            rfmix_method_dir.mkdir(parents=True, exist_ok=True)
+
+            model_out = model_method_dir / f"model_predictions_n{sample_size}_seed{seed}.csv"
 
             export_cmd = [
                 python_exe,
@@ -114,8 +133,8 @@ def main() -> None:
             model_df = pd.read_csv(model_out)
             sampled_ids = sorted(model_df["sample_id"].dropna().astype(str).unique().tolist())
 
-            rfmix_subset_out = predictions_dir / f"rfmix_predictions_n{sample_size}_seed{seed}.csv"
-            flare_subset_out = predictions_dir / f"flare_predictions_n{sample_size}_seed{seed}.csv"
+            rfmix_subset_out = rfmix_method_dir / f"rfmix_predictions_n{sample_size}_seed{seed}.csv"
+            flare_subset_out = flare_method_dir / f"flare_predictions_n{sample_size}_seed{seed}.csv"
 
             filter_to_samples(rfmix_df_all, sampled_ids).to_csv(rfmix_subset_out, index=False)
             filter_to_samples(flare_df_all, sampled_ids).to_csv(flare_subset_out, index=False)
@@ -127,7 +146,8 @@ def main() -> None:
             ]
 
             for method_pair, left_path, right_path in comparisons:
-                compare_out = results_dir / f"comparison_{method_pair}_n{sample_size}_seed{seed}.csv"
+                pair_dir = pair_output_dirs[method_pair]
+                compare_out = pair_dir / f"comparison_{method_pair}_n{sample_size}_seed{seed}.csv"
                 compare_cmd = [
                     python_exe,
                     "benchmark/compare_with_reference.py",
@@ -173,8 +193,8 @@ def main() -> None:
         .reset_index(drop=True)
     )
 
-    runs_out = results_dir / f"{args.out_prefix}_runs.csv"
-    summary_out = results_dir / f"{args.out_prefix}_summary.csv"
+    runs_out = sweep_dir / f"{args.out_prefix}_runs.csv"
+    summary_out = sweep_dir / f"{args.out_prefix}_summary.csv"
 
     runs_df.to_csv(runs_out, index=False)
     summary_df.to_csv(summary_out, index=False)
