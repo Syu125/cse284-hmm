@@ -106,7 +106,7 @@ def main() -> None:
 
             export_cmd = [
                 python_exe,
-                "benchmark/export_model_predictions.py",
+                "benchmark/scripts/export_model_predictions.py",
                 "--vcf",
                 args.vcf,
                 "--panel",
@@ -150,7 +150,7 @@ def main() -> None:
                 compare_out = pair_dir / f"comparison_{method_pair}_n{sample_size}_seed{seed}.csv"
                 compare_cmd = [
                     python_exe,
-                    "benchmark/compare_with_reference.py",
+                    "benchmark/scripts/compare_with_reference.py",
                     "--model",
                     str(left_path),
                     "--reference",

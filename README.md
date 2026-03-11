@@ -50,14 +50,9 @@ cse284-hmm/
 ├── benchmark/                   # RFMix Benchmarking
 │   ├── predictions/
 │   |── results/
-│   ├── BENCHMARK.md			 # Writeup for benchmark procedure and results
-│   ├── compare_with_reference.py
-│   ├── convert_rfmix_to_snp_csv.py
-│   ├── export_model_predictions.py
-│   ├── fix_genetic_map.py
-│   ├── metrics.py
-│   ├── prepare_benchmark_data.py
-│   └── run_sample_size_sweep.py
+│   ├── BENCHMARK.md			 # Benchmark runner usage
+│   ├── run_benchmark.sh         # Single benchmark entrypoint
+│   └── scripts/                 # Benchmark python scripts
 |
 ├── data/                           # Data management
 │   |── cache/                     # Auto-generated frequency caches

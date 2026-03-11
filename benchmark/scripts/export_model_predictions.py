@@ -8,7 +8,7 @@ import sys
 import pandas as pd
 import pysam
 
-SRC_ROOT = Path(__file__).resolve().parent.parent / 'src'
+SRC_ROOT = Path(__file__).resolve().parent.parent.parent / 'src'
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
