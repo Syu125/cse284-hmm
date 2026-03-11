@@ -8,6 +8,21 @@ from pathlib import Path
 import pandas as pd
 
 
+def to_haplotype_rows(df: pd.DataFrame) -> pd.DataFrame:
+    required = {"sample_id", "position", "hap1_state", "hap2_state"}
+    missing = required.difference(df.columns)
+    if missing:
+        raise ValueError(f"Missing haplotype columns for haplotype evaluation: {sorted(missing)}")
+
+    hap1 = df[["sample_id", "position", "hap1_state"]].rename(columns={"hap1_state": "label"}).copy()
+    hap1["sample_id"] = hap1["sample_id"].astype(str) + "|h1"
+
+    hap2 = df[["sample_id", "position", "hap2_state"]].rename(columns={"hap2_state": "label"}).copy()
+    hap2["sample_id"] = hap2["sample_id"].astype(str) + "|h2"
+
+    return pd.concat([hap1, hap2], ignore_index=True).sort_values(["sample_id", "position"]).reset_index(drop=True)
+
+
 def parse_int_list(value: str) -> list[int]:
     values = [part.strip() for part in value.split(",") if part.strip()]
     if not values:
@@ -46,6 +61,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="FLARE SNP-level predictions CSV",
     )
     parser.add_argument("--valid-labels", default="YRI,CEU,HET")
+    parser.add_argument(
+        "--evaluation-mode",
+        choices=["diploid", "haplotype"],
+        default="diploid",
+        help="Compare diploid labels or phased haplotype states (default: diploid)",
+    )
 
     parser.add_argument("--predictions-dir", default="benchmark/predictions")
     parser.add_argument("--results-dir", default="benchmark/results")
@@ -139,10 +160,31 @@ def main() -> None:
             filter_to_samples(rfmix_df_all, sampled_ids).to_csv(rfmix_subset_out, index=False)
             filter_to_samples(flare_df_all, sampled_ids).to_csv(flare_subset_out, index=False)
 
+            compare_left_paths = {
+                "model": model_out,
+                "rfmix": rfmix_subset_out,
+                "flare": flare_subset_out,
+            }
+
+            if args.evaluation_mode == "haplotype":
+                model_hap_out = model_method_dir / f"model_haplotype_n{sample_size}_seed{seed}.csv"
+                rfmix_hap_out = rfmix_method_dir / f"rfmix_haplotype_n{sample_size}_seed{seed}.csv"
+                flare_hap_out = flare_method_dir / f"flare_haplotype_n{sample_size}_seed{seed}.csv"
+
+                to_haplotype_rows(pd.read_csv(model_out)).to_csv(model_hap_out, index=False)
+                to_haplotype_rows(pd.read_csv(rfmix_subset_out)).to_csv(rfmix_hap_out, index=False)
+                to_haplotype_rows(pd.read_csv(flare_subset_out)).to_csv(flare_hap_out, index=False)
+
+                compare_left_paths = {
+                    "model": model_hap_out,
+                    "rfmix": rfmix_hap_out,
+                    "flare": flare_hap_out,
+                }
+
             comparisons = [
-                ("hmm_vs_rfmix", model_out, rfmix_subset_out),
-                ("hmm_vs_flare", model_out, flare_subset_out),
-                ("flare_vs_rfmix", flare_subset_out, rfmix_subset_out),
+                ("hmm_vs_rfmix", compare_left_paths["model"], compare_left_paths["rfmix"]),
+                ("hmm_vs_flare", compare_left_paths["model"], compare_left_paths["flare"]),
+                ("flare_vs_rfmix", compare_left_paths["flare"], compare_left_paths["rfmix"]),
             ]
 
             for method_pair, left_path, right_path in comparisons:

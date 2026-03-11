@@ -42,6 +42,10 @@ def resolve_consensus_label(hap_calls: list[int], tie_policy: str) -> str | None
     return "HET"
 
 
+def hap_call_to_state(call: int) -> str:
+    return "CEU" if call == 0 else "YRI"
+
+
 def convert_msp_to_snp_level(
     msp_file: str,
     vcf_file: str,
@@ -146,9 +150,24 @@ def convert_msp_to_snp_level(
                     dropped_ties += 1
                 continue
 
+            hap1_state = hap_call_to_state(hap_calls[0]) if len(hap_calls) >= 1 else None
+            hap2_state = hap_call_to_state(hap_calls[1]) if len(hap_calls) >= 2 else hap1_state
+            if hap1_state is None or hap2_state is None:
+                continue
+            diploid_state = f"{hap1_state}_{hap2_state}"
+
             # Assign this ancestry to all SNPs in segment
             for snp_pos in snps_in_segment:
-                snp_rows.append({"sample_id": sample_id, "position": snp_pos, "label": ancestry})
+                snp_rows.append(
+                    {
+                        "sample_id": sample_id,
+                        "position": snp_pos,
+                        "hap1_state": hap1_state,
+                        "hap2_state": hap2_state,
+                        "state": diploid_state,
+                        "label": ancestry,
+                    }
+                )
 
     output_df = pd.DataFrame(snp_rows).sort_values(["sample_id", "position"]).reset_index(drop=True)
     output_df.to_csv(output_file, index=False)

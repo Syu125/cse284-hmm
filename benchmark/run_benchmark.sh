@@ -124,6 +124,8 @@ run_sweep() {
     --sample-sizes 5,20,50 \
     --seeds 0,1,2,3,4 \
     --sample-strategy random \
+    --evaluation-mode haplotype \
+    --valid-labels CEU,YRI \
     --rfmix benchmark/predictions/rfmix/rfmix_predictions.csv \
     --flare benchmark/predictions/flare/flare_predictions.csv \
     --out-prefix sample_sweep

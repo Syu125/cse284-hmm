@@ -21,16 +21,10 @@ import pandas as pd
 import pysam
 
 
-def resolve_consensus_label(an1: int, an2: int, idx_to_name: dict[int, str], tie_policy: str) -> str | None:
+def resolve_consensus_label(hap1_state: str, hap2_state: str, tie_policy: str) -> str | None:
     """Resolve diploid hap ancestry calls to one benchmark label."""
-    label1 = idx_to_name.get(an1)
-    label2 = idx_to_name.get(an2)
-
-    if label1 is None or label2 is None:
-        return None
-
-    if label1 == label2:
-        return label1
+    if hap1_state == hap2_state:
+        return hap1_state
 
     if tie_policy == "drop":
         return None
@@ -150,13 +144,23 @@ def main() -> None:
                 if a1 != a2:
                     tie_sites += 1
 
-                label = resolve_consensus_label(a1, a2, idx_to_name, args.tie_policy)
+                hap1_state = idx_to_name.get(a1)
+                hap2_state = idx_to_name.get(a2)
+                if hap1_state is None or hap2_state is None:
+                    continue
+
+                label = resolve_consensus_label(hap1_state, hap2_state, args.tie_policy)
                 if label is None:
                     if a1 != a2:
                         dropped_ties += 1
                     continue
 
+                diploid_state = f"{hap1_state}_{hap2_state}"
+
                 rows.append({"sample_id": sample_id, "position": pos, "label": label})
+                rows[-1]["hap1_state"] = hap1_state
+                rows[-1]["hap2_state"] = hap2_state
+                rows[-1]["state"] = diploid_state
 
     out_df = pd.DataFrame(rows)
     if out_df.empty:

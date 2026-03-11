@@ -1,19 +1,17 @@
 # Model Benchmarking: RFMix & FLARE Comparison
 
-This folder contains tools and results for evaluating and comparing the HMM model against external local-ancestry methods (RFMIX).
+This folder contains tools and results for evaluating and comparing the HMM model against external local-ancestry methods (RFMix and FLARE).
 
 ## Prepping the Benchmark
 
 ### First, let's prepare the benchmark data
 
-For this benchmark, I first compared my HMM implementation to FLARE because both are HMM-based local ancestry methods. However, they produced very different outputs. When taking a deeper dive, I noticed it was because of how the implementation:
-- My implementation infers diploid states directly from population allels frequencies with a simple transition structure.
-- FLARE's implementation is haplotype-oriented and uses EM parameters estimations to fine-tune the transitions.
-As a result of this difference, when comparing my implementation to FLARE, the similarity scores were very low.
+The benchmark is now configured to evaluate methods in a haplotype-consistent way:
+- The HMM runs as a single-haplotype `K`-state model (`K=2`: `CEU`, `YRI`) on both phased haplotypes.
+- FLARE and RFMix outputs are converted to per-SNP predictions with explicit haplotype columns (`hap1_state`, `hap2_state`).
+- Sweep comparisons run in haplotype mode (`CEU,YRI` labels), so all method pairs are evaluated in the same state space.
 
-So, I decided to test with RFMix, which is a more advanced ("up-to-date") tool for LAI. I compared both implementations (my HMM and FLARE) to RFMix, and the results show that my HMM was slightly more aligned with RFMix's results.
-
-Below, I walk through setting up both FLARE and RFmix, the steps to run the benchmark, and the results.
+Below are the setup, run steps, and latest results.
 
 ## Running the Benchmark
 
@@ -38,9 +36,9 @@ bash benchmark/run_benchmark.sh format
 - `prepare`: split query/reference files and build tool-specific maps/panel files
 - `flare`: run FLARE and write raw outputs to `benchmark/results/`
 - `rfmix`: run RFMix and write raw outputs to `benchmark/results/`
-- `convert`: convert FLARE/RFMix raw outputs to SNP-level CSVs under `benchmark/predictions/`
-- `model`: export HMM SNP-level predictions under `benchmark/predictions/model/`
-- `sweep`: run sample-size sweeps and pairwise comparisons
+- `convert`: convert FLARE/RFMix raw outputs to SNP-level CSVs with `hap1_state`, `hap2_state`, `state`, and `label`
+- `model`: export HMM SNP-level predictions under `benchmark/predictions/model/` with the same columns
+- `sweep`: run sample-size sweeps and pairwise comparisons (default: haplotype mode, `valid-labels=CEU,YRI`)
 - `format`: generate summary tables/plots and runtime-memory comparison plots
 
 ### Runtime and Memory Logging
@@ -53,24 +51,23 @@ Rows are appended per command with a `run_id`, so you can compare runs over time
 
 ## Benchmark Results
 
-The following results use full 3-class evaluation (`YRI`, `CEU`, `HET`) on the chr22 slice.
+The following results use haplotype-level evaluation (`YRI`, `CEU`) on the chr22 slice.
 
 ### Sample-Size Sweep (5 Random Repeats per N)
 
 | Method Pair | Sample Size | Repeats | Mean Aligned Rows | Mean Samples Compared | Mean Concordance | Std Concordance | Mean Kappa | Std Kappa |
 |------------|------------:|--------:|------------------:|----------------------:|-----------------:|----------------:|-----------:|----------:|
-| `hmm_vs_rfmix` | 5  | 5 | 79,730.0 | 5.0  | 0.795023 | 0.080396 | 0.542547 | 0.215686 |
-| `hmm_vs_rfmix` | 20 | 5 | 318,920.0 | 20.0 | 0.810998 | 0.058768 | 0.502608 | 0.101310 |
-| `hmm_vs_rfmix` | 50 | 5 | 797,300.0 | 50.0 | 0.820949 | 0.010196 | 0.483218 | 0.013899 |
-| `flare_vs_rfmix` | 5  | 5 | 4,645.0  | 5.0  | 0.736146 | 0.111076 | 0.351060 | 0.229981 |
-| `flare_vs_rfmix` | 20 | 5 | 18,580.0 | 20.0 | 0.773918 | 0.038822 | 0.470236 | 0.057815 |
-| `flare_vs_rfmix` | 50 | 5 | 46,450.0 | 50.0 | 0.789942 | 0.009237 | 0.512119 | 0.022160 |
-| `hmm_vs_flare` | 5  | 5 | 4,275.0  | 5.0  | 0.640515 | 0.085323 | 0.137754 | 0.148875 |
-| `hmm_vs_flare` | 20 | 5 | 17,100.0 | 20.0 | 0.708444 | 0.060388 | 0.232509 | 0.099808 |
-| `hmm_vs_flare` | 50 | 5 | 42,750.0 | 50.0 | 0.728430 | 0.010955 | 0.252564 | 0.013063 |
+| `hmm_vs_rfmix` | 5  | 5 | 159,460.0  | 10.0  | 0.905028 | 0.043699 | 0.503085 | 0.105000 |
+| `hmm_vs_rfmix` | 20 | 5 | 637,840.0  | 40.0  | 0.902313 | 0.028212 | 0.560290 | 0.072844 |
+| `hmm_vs_rfmix` | 50 | 5 | 1,594,600.0 | 100.0 | 0.902035 | 0.003484 | 0.535192 | 0.010663 |
+| `flare_vs_rfmix` | 5  | 5 | 9,290.0   | 10.0  | 0.845834 | 0.066366 | 0.586735 | 0.172545 |
+| `flare_vs_rfmix` | 20 | 5 | 37,160.0  | 40.0  | 0.871152 | 0.016815 | 0.658600 | 0.048621 |
+| `flare_vs_rfmix` | 50 | 5 | 92,900.0  | 100.0 | 0.882114 | 0.006163 | 0.689625 | 0.015792 |
+| `hmm_vs_flare` | 5  | 5 | 8,550.0   | 10.0  | 0.812585 | 0.044925 | 0.376900 | 0.121279 |
+| `hmm_vs_flare` | 20 | 5 | 34,200.0  | 40.0  | 0.838690 | 0.029364 | 0.440463 | 0.090654 |
+| `hmm_vs_flare` | 50 | 5 | 85,500.0  | 100.0 | 0.844924 | 0.005994 | 0.422869 | 0.015401 |
 
-As you can see, the variance drops with larger sample sizes across all method pairs, with the strongest stability at `N=50`.  
-`hmm_vs_rfmix` remains the top pair on both concordance and kappa, while `hmm_vs_flare` remains the lowest.
+As expected, variance decreases with larger sample sizes across all method pairs.
 
 ### Concordance And Kappa Trends
 
@@ -79,58 +76,44 @@ As you can see, the variance drops with larger sample sizes across all method pa
 	<img src="plots/sample_sweep_kappa.png" alt="Sample Sweep Kappa" width="49%" />
 </p>
 
-Concordance (how similar the sets agree):
-- `hmm_vs_rfmix` has the highest concordance across all sample sizes, indicating the closest overall agreement with RFMix among the evaluated pairs.
-- `flare_vs_rfmix` is intermediate and improves as sample size increases.
-- `hmm_vs_flare` remains the lowest, showing that the two HMM-family methods produce systematically different calls despite both being HMM-based.
+Concordance:
+- `hmm_vs_rfmix` is highest overall (~0.902 across all tested `N`), indicating strongest raw agreement.
+- `flare_vs_rfmix` improves with `N` and reaches ~0.882 at `N=50`.
+- `hmm_vs_flare` is consistently lower than `hmm_vs_rfmix`.
 
-Kappa (how similar the sets agree, accounting for chance):
-- `hmm_vs_rfmix` also has the strongest chance-adjusted agreement (highest kappa), reinforcing the concordance trend.
-- `flare_vs_rfmix` improves with larger sample sizes and approaches moderate agreement.
-- `hmm_vs_flare` stays substantially lower, indicating disagreement beyond class prevalence effects.
+Kappa:
+- `flare_vs_rfmix` has the highest chance-adjusted agreement in this run (up to ~0.690 at `N=50`).
+- `hmm_vs_rfmix` remains moderate-to-strong (~0.50-0.56).
+- `hmm_vs_flare` remains the lowest kappa pair.
 
 ### Key Findings (Latest Full Run)
 
-- Accuracy: `hmm_vs_rfmix` remains the strongest pair at every sample size (concordance `0.795 -> 0.821`, kappa `0.543 -> 0.483`).
-- FLARE vs RFMix: improves with sample size and reaches kappa `0.512` at `N=50`, which is higher than `hmm_vs_rfmix` kappa at `N=50` (`0.483`) but lower concordance (`0.790` vs `0.821`).
-- HMM vs FLARE: remains the lowest-agreement pair despite improving with larger `N` (concordance `0.641 -> 0.728`, kappa `0.138 -> 0.253`).
-- Stability: variance shrinks strongly at `N=50` across all pairs, supporting more stable estimates at larger cohorts.
-
-Performance from `benchmark/plots/benchmark_performance_latest.csv`:
-
-| Method | Runtime (s) | Peak Memory (GiB) |
-|-------|------------:|------------------:|
-| `flare` | 1.389 | 0.217 |
-| `hmm` | 13.678 | 0.110 |
-| `rfmix` | 17.939 | 0.345 |
-
-- Runtime ranking (fastest to slowest): `flare`, `hmm`, `rfmix`.
-- Memory ranking (lowest to highest): `hmm`, `flare`, `rfmix`.
+- Highest concordance pair: `hmm_vs_rfmix` (`0.905 -> 0.902` from `N=5` to `N=50`).
+- Highest kappa pair: `flare_vs_rfmix` (`0.587 -> 0.690`).
+- Lowest pair: `hmm_vs_flare` remains lower than the two RFMix-based pairs.
+- Stability: std for concordance and kappa shrinks notably at `N=50`.
 
 ### Runtime And Memory Comparison (Latest Run)
-
-After running:
-
-```bash
-bash benchmark/run_benchmark.sh format
-```
-
-the following files are generated:
-
-- `benchmark/plots/benchmark_performance_latest.csv`
-- `benchmark/plots/benchmark_performance_summary.csv`
-- `benchmark/plots/benchmark_runtime_comparison.png`
-- `benchmark/plots/benchmark_memory_comparison.png`
 
 <p align="center">
 	<img src="plots/benchmark_runtime_comparison.png" alt="Method Runtime Comparison" width="49%" />
 	<img src="plots/benchmark_memory_comparison.png" alt="Method Memory Comparison" width="49%" />
 </p>
 
-Interpretation guide:
 - Runtime plot compares `hmm`, `flare`, and `rfmix` wall-clock time for the latest run.
 - Memory plot compares peak RSS (GiB) for each method in the latest run.
 - Summary CSV aggregates mean/std across all recorded runs for trend tracking.
+
+Performance from `benchmark/plots/benchmark_performance_latest.csv`:
+
+| Method | Runtime (s) | Peak Memory (GiB) |
+|-------|------------:|------------------:|
+| `flare` | 1.249 | 0.222 |
+| `hmm` | 16.283 | 0.131 |
+| `rfmix` | 18.092 | 0.334 |
+
+- Runtime ranking (fastest to slowest): `flare`, `hmm`, `rfmix`.
+- Memory ranking (lowest to highest): `hmm`, `flare`, `rfmix`.
 
 ## Folder Structure
 
