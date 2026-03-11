@@ -20,6 +20,11 @@ import pandas as pd
 
 
 METHOD_ORDER = ["hmm_vs_rfmix", "hmm_vs_flare", "flare_vs_rfmix"]
+METHOD_PAIR_COLORS = {
+    "hmm_vs_rfmix": "#829eeb",  # HMM
+    "hmm_vs_flare": "#93c4e0",  # FLARE
+    "flare_vs_rfmix": "#9ce3e9",  # RFMix
+}
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -31,12 +36,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--out-csv",
-        default="benchmark/results/sample_sweep_summary_wide.csv",
+        default="benchmark/plots/sample_sweep_summary_wide.csv",
         help="Output wide-format CSV",
     )
     parser.add_argument(
         "--out-dir",
-        default="benchmark/results",
+        default="benchmark/plots",
         help="Output directory for generated tables and plots",
     )
     return parser
@@ -104,6 +109,7 @@ def plot_metric_with_error(df: pd.DataFrame, mean_col: str, std_col: str, ylabel
             marker="o",
             capsize=3,
             linewidth=1.8,
+            color=METHOD_PAIR_COLORS.get(method),
             label=method,
         )
 
@@ -129,6 +135,7 @@ def plot_aligned_rows(df: pd.DataFrame, out_path: Path) -> None:
             method_df["mean_aligned_rows"],
             marker="o",
             linewidth=1.8,
+            color=METHOD_PAIR_COLORS.get(method),
             label=method,
         )
 

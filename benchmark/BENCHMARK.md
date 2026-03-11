@@ -53,16 +53,18 @@ java -Xmx8g -jar benchmark/flare.jar \
   ref-panel=benchmark/data/flare_ref_panel_yri_ceu.txt \
   gt=benchmark/data/query_asw_chr22.vcf.gz \
   map=benchmark/data/genetic_map_GRCh37_chr22.flare.map \
-  out=benchmark/flare_output \
+  out=benchmark/results/flare_output \
   nthreads=4
 ```
 
-Output: `benchmark/flare_output.anc.vcf.gz`
+Output: `benchmark/results/flare_output.anc.vcf.gz`
 
 **Convert FLARE Output to SNP-Level CSV:**
 ```bash
+tabix -p vcf benchmark/results/flare_output.anc.vcf.gz
+
 python benchmark/convert_flare_to_snp_csv.py \
-  --flare benchmark/flare_output.anc.vcf.gz \
+  --flare benchmark/results/flare_output.anc.vcf.gz \
   --tie-policy unknown \
   --out benchmark/predictions/flare_predictions.csv \
   --chromosome 22
@@ -89,19 +91,19 @@ rfmix \
   -g benchmark/data/genetic_map_GRCh37_chr22.strict.txt \
   -m data/raw/panels/integrated_call_samples_v3.20130502.ALL.panel \
   --chromosome=22 \
-  -o benchmark/rfmix_output
+  -o benchmark/results/rfmix_output
 ```
 
 **Output files:**
-- `rfmix_output.msp.tsv` - Ancestry state per segment
-- `rfmix_output.sis.tsv` - Segment info (sample, start, end)
-- `rfmix_output.rfmix.Q` - Posterior probabilities
-- `rfmix_output.fb.tsv` - Forward-backward details
+- `benchmark/results/rfmix_output.msp.tsv` - Ancestry state per segment
+- `benchmark/results/rfmix_output.sis.tsv` - Segment info (sample, start, end)
+- `benchmark/results/rfmix_output.rfmix.Q` - Posterior probabilities
+- `benchmark/results/rfmix_output.fb.tsv` - Forward-backward details
 
 **Convert RFMix Output to SNP-Level CSV:**
 ```bash
 python benchmark/convert_rfmix_to_snp_csv.py \
-  --msp benchmark/rfmix_output.msp.tsv \
+  --msp benchmark/results/rfmix_output.msp.tsv \
   --vcf benchmark/data/query_asw_chr22.vcf.gz \
   --tie-policy unknown \
   --out benchmark/predictions/rfmix_predictions.csv \
@@ -138,34 +140,19 @@ python benchmark/run_sample_size_sweep.py \
   --out-prefix sample_sweep
 ```
 
-Outputs include `method_pair` so each pair can be summarized separately.
-
-To generate publication-ready tables and plots:
+Plots and tables have already been generated (can be found in the [plots](/benchmark/plots/) folder). For reference, below is the command to generate them:
 
 ```bash
 python benchmark/format_sweep_table.py \
   --input benchmark/results/sample_sweep_summary.csv \
   --out-csv benchmark/results/sample_sweep_summary_wide.csv \
-  --out-dir benchmark/results
 ```
-
-This writes:
-- `sample_sweep_summary_wide.csv`
-- `sample_sweep_concordance_mean.csv`
-- `sample_sweep_concordance_std.csv`
-- `sample_sweep_kappa_mean.csv`
-- `sample_sweep_kappa_std.csv`
-- `sample_sweep_concordance.png`
-- `sample_sweep_kappa.png`
-- `sample_sweep_aligned_rows.png`
 
 ## Benchmark Results
 
 The following results use full 3-class evaluation (`YRI`, `CEU`, `HET`) on the chr22 slice.
 
 ### Sample-Size Sweep (5 Random Repeats per N)
-
-Using `run_sample_size_sweep.py` with `--sample-strategy random` and seeds `0,1,2,3,4`:
 
 | Sample Size | Repeats | Mean Aligned Rows | Mean Samples Compared | Mean Concordance | Std Concordance | Mean Kappa | Std Kappa |
 |------------:|--------:|------------------:|----------------------:|-----------------:|----------------:|-----------:|----------:|
