@@ -35,13 +35,26 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--query-pop", default="ASW")
     parser.add_argument("--generations", type=float, default=100.0)
 
-    parser.add_argument("--rfmix", default="benchmark/predictions/rfmix_predictions.csv")
+    parser.add_argument(
+        "--rfmix",
+        default="benchmark/predictions/rfmix_predictions.csv",
+        help="RFMix SNP-level predictions CSV",
+    )
+    parser.add_argument(
+        "--flare",
+        default="benchmark/predictions/flare_predictions.csv",
+        help="FLARE SNP-level predictions CSV",
+    )
     parser.add_argument("--valid-labels", default="YRI,CEU,HET")
 
     parser.add_argument("--predictions-dir", default="benchmark/predictions")
     parser.add_argument("--results-dir", default="benchmark/results")
     parser.add_argument("--out-prefix", default="sample_sweep")
     return parser
+
+
+def filter_to_samples(df: pd.DataFrame, sample_ids: list[str]) -> pd.DataFrame:
+    return df[df["sample_id"].isin(sample_ids)].copy()
 
 
 def main() -> None:
@@ -55,13 +68,22 @@ def main() -> None:
     predictions_dir.mkdir(parents=True, exist_ok=True)
     results_dir.mkdir(parents=True, exist_ok=True)
 
+    rfmix_path = Path(args.rfmix)
+    flare_path = Path(args.flare)
+    if not rfmix_path.exists():
+        raise FileNotFoundError(f"RFMix predictions file not found: {rfmix_path}")
+    if not flare_path.exists():
+        raise FileNotFoundError(f"FLARE predictions file not found: {flare_path}")
+
+    rfmix_df_all = pd.read_csv(rfmix_path)
+    flare_df_all = pd.read_csv(flare_path)
+
     python_exe = sys.executable
     run_rows: list[dict[str, float | int | str]] = []
 
     for sample_size in sample_sizes:
         for seed in seeds:
             model_out = predictions_dir / f"model_predictions_n{sample_size}_seed{seed}.csv"
-            compare_out = results_dir / f"comparison_n{sample_size}_seed{seed}.csv"
 
             export_cmd = [
                 python_exe,
@@ -88,37 +110,56 @@ def main() -> None:
             print(f"[RUN] export n={sample_size}, seed={seed}")
             run_command(export_cmd)
 
-            compare_cmd = [
-                python_exe,
-                "benchmark/compare_with_rfmix.py",
-                "--model",
-                str(model_out),
-                "--rfmix",
-                args.rfmix,
-                "--valid-labels",
-                args.valid_labels,
-                "--out",
-                str(compare_out),
+            # Use the exact sampled cohort across all pairwise comparisons.
+            model_df = pd.read_csv(model_out)
+            sampled_ids = sorted(model_df["sample_id"].dropna().astype(str).unique().tolist())
+
+            rfmix_subset_out = predictions_dir / f"rfmix_predictions_n{sample_size}_seed{seed}.csv"
+            flare_subset_out = predictions_dir / f"flare_predictions_n{sample_size}_seed{seed}.csv"
+
+            filter_to_samples(rfmix_df_all, sampled_ids).to_csv(rfmix_subset_out, index=False)
+            filter_to_samples(flare_df_all, sampled_ids).to_csv(flare_subset_out, index=False)
+
+            comparisons = [
+                ("hmm_vs_rfmix", model_out, rfmix_subset_out),
+                ("hmm_vs_flare", model_out, flare_subset_out),
+                ("flare_vs_rfmix", flare_subset_out, rfmix_subset_out),
             ]
-            print(f"[RUN] compare n={sample_size}, seed={seed}")
-            run_command(compare_cmd)
 
-            compare_df = pd.read_csv(compare_out)
-            run_rows.append(
-                {
-                    "sample_size": sample_size,
-                    "seed": seed,
-                    "aligned_rows": int(compare_df["n_sites"].sum()),
-                    "samples_compared": int(compare_df["sample_id"].nunique()),
-                    "mean_concordance": float(compare_df["concordance"].mean()),
-                    "mean_kappa": float(compare_df["cohen_kappa"].mean()),
-                }
-            )
+            for method_pair, left_path, right_path in comparisons:
+                compare_out = results_dir / f"comparison_{method_pair}_n{sample_size}_seed{seed}.csv"
+                compare_cmd = [
+                    python_exe,
+                    "benchmark/compare_with_reference.py",
+                    "--model",
+                    str(left_path),
+                    "--reference",
+                    str(right_path),
+                    "--valid-labels",
+                    args.valid_labels,
+                    "--out",
+                    str(compare_out),
+                ]
+                print(f"[RUN] compare {method_pair} n={sample_size}, seed={seed}")
+                run_command(compare_cmd)
 
-    runs_df = pd.DataFrame(run_rows).sort_values(["sample_size", "seed"]).reset_index(drop=True)
+                compare_df = pd.read_csv(compare_out)
+                run_rows.append(
+                    {
+                        "method_pair": method_pair,
+                        "sample_size": sample_size,
+                        "seed": seed,
+                        "aligned_rows": int(compare_df["n_sites"].sum()),
+                        "samples_compared": int(compare_df["sample_id"].nunique()),
+                        "mean_concordance": float(compare_df["concordance"].mean()),
+                        "mean_kappa": float(compare_df["cohen_kappa"].mean()),
+                    }
+                )
+
+    runs_df = pd.DataFrame(run_rows).sort_values(["method_pair", "sample_size", "seed"]).reset_index(drop=True)
 
     summary_df = (
-        runs_df.groupby("sample_size", as_index=False)
+        runs_df.groupby(["method_pair", "sample_size"], as_index=False)
         .agg(
             repeats=("seed", "count"),
             mean_aligned_rows=("aligned_rows", "mean"),
@@ -128,7 +169,7 @@ def main() -> None:
             mean_kappa=("mean_kappa", "mean"),
             std_kappa=("mean_kappa", "std"),
         )
-        .sort_values("sample_size")
+        .sort_values(["method_pair", "sample_size"])
         .reset_index(drop=True)
     )
 

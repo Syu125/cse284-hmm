@@ -15,8 +15,8 @@ conda activate hmm_env
 bash data/prepare_data.sh slice
 
 # 3. HMM analysis scripts
-python scripts/01_real_sample_analysis.py
-python scripts/02_population_analysis.py
+python general-analysis/01_real_sample_analysis.py
+python general-analysis/02_population_analysis.py
 ```
 ## Benchmark
 Benchmark uses a 3-class comparison (`YRI`, `CEU`, `HET`) by default.
@@ -51,7 +51,7 @@ cse284-hmm/
 │   ├── predictions/
 │   |── results/
 │   ├── BENCHMARK.md			 # Writeup for benchmark procedure and results
-│   ├── compare_with_rfmix.py
+│   ├── compare_with_reference.py
 │   ├── convert_rfmix_to_snp_csv.py
 │   ├── export_model_predictions.py
 │   ├── fix_genetic_map.py

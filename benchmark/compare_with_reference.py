@@ -11,15 +11,28 @@ from metrics import align_predictions, compare_sample
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
-            "Compare your HMM ancestry calls against RFMix calls on overlapping SNP positions."
+            "Compare HMM ancestry calls against a reference tool on overlapping SNP positions."
         )
     )
-    parser.add_argument("--model", required=True, help="CSV with your model predictions")
-    parser.add_argument("--rfmix", required=True, help="CSV with RFMix predictions")
+    parser.add_argument("--model", required=True, help="CSV with model predictions")
+    # Keep --rfmix as a backward-compatible alias.
+    parser.add_argument(
+        "--reference",
+        "--rfmix",
+        dest="reference",
+        required=True,
+        help="CSV with reference predictions (for example RFMix or FLARE)",
+    )
     parser.add_argument("--sample-col", default="sample_id", help="Sample column present in both files")
     parser.add_argument("--position-col", default="position", help="Position column present in both files")
-    parser.add_argument("--model-label-col", default="label", help="Label column in your model CSV")
-    parser.add_argument("--rfmix-label-col", default="label", help="Label column in RFMix CSV")
+    parser.add_argument("--model-label-col", default="label", help="Label column in model CSV")
+    parser.add_argument(
+        "--reference-label-col",
+        "--rfmix-label-col",
+        dest="reference_label_col",
+        default="label",
+        help="Label column in reference CSV",
+    )
     parser.add_argument(
         "--valid-labels",
         default="YRI,CEU,HET",
@@ -27,7 +40,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--out",
-        default="rfmix_comparison_summary.csv",
+        default="reference_comparison_summary.csv",
         help="Output CSV path for per-sample metrics",
     )
     return parser
@@ -38,16 +51,16 @@ def main() -> None:
     args = parser.parse_args()
 
     model_df = pd.read_csv(args.model)
-    rfmix_df = pd.read_csv(args.rfmix)
+    ref_df = pd.read_csv(args.reference)
     valid_labels = tuple(label.strip().upper() for label in args.valid_labels.split(",") if label.strip())
 
     aligned = align_predictions(
         model_df=model_df,
-        ref_df=rfmix_df,
+        ref_df=ref_df,
         sample_col=args.sample_col,
         pos_col=args.position_col,
         model_label_col=args.model_label_col,
-        ref_label_col=args.rfmix_label_col,
+        ref_label_col=args.reference_label_col,
         valid_labels=valid_labels,
     )
 
@@ -66,11 +79,11 @@ def main() -> None:
                 "concordance": summary.concordance,
                 "cohen_kappa": summary.cohen_kappa,
                 "switches_per_mb_model": summary.switches_per_mb_model,
-                "switches_per_mb_rfmix": summary.switches_per_mb_ref,
+                "switches_per_mb_reference": summary.switches_per_mb_ref,
                 "median_tract_bp_model": summary.median_tract_bp_model,
-                "median_tract_bp_rfmix": summary.median_tract_bp_ref,
+                "median_tract_bp_reference": summary.median_tract_bp_ref,
                 "yri_pct_model": summary.yri_pct_model,
-                "yri_pct_rfmix": summary.yri_pct_ref,
+                "yri_pct_reference": summary.yri_pct_ref,
             }
         )
 
