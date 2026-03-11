@@ -44,7 +44,7 @@ class EmissionModel:
 
     def get_emission_probs(self, pos, genotype):
         """
-        Calculates P(Genotype | State) for diploid ancestry states.
+        Calculates P(Genotype | State) for phased diploid ancestry states.
         genotype: tuple (0, 1), (1, 1), etc.
         """
         f_yri = self.yri_freqs.get(pos, 0.5) # Default to 0.5 if SNP missing
@@ -52,11 +52,13 @@ class EmissionModel:
         
         p_ceu_ceu = self._calc_likelihood(genotype, f_ceu, f_ceu)
         p_yri_yri = self._calc_likelihood(genotype, f_yri, f_yri)
-        p_ceu_yri = self._calc_mixed_likelihood(genotype, f_ceu, f_yri)
+        p_ceu_yri = self._calc_likelihood(genotype, f_ceu, f_yri)
+        p_yri_ceu = self._calc_likelihood(genotype, f_yri, f_ceu)
 
         return {
             "CEU_CEU": p_ceu_ceu,
             "CEU_YRI": p_ceu_yri,
+            "YRI_CEU": p_yri_ceu,
             "YRI_YRI": p_yri_yri,
         }
 
@@ -74,12 +76,6 @@ class EmissionModel:
         p2 = self._allele_prob(allele_2, f2)
         prob = p1 * p2
         return max(prob, self.epsilon)
-
-    def _calc_mixed_likelihood(self, genotype, f_left, f_right):
-        """Average over the two possible allele-origin orderings for mixed ancestry."""
-        prob_a = self._calc_likelihood(genotype, f_left, f_right)
-        prob_b = self._calc_likelihood(genotype, f_right, f_left)
-        return max(0.5 * (prob_a + prob_b), self.epsilon)
 
     def _allele_prob(self, allele, f):
         if allele == 1:

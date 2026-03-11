@@ -73,27 +73,42 @@ def main():
         
         for record in vcf:
             if record.pos in common_set:
-                gt = record.samples[sample_id].allele_indices
+                sample_data = record.samples[sample_id]
+                gt = sample_data.allele_indices
+                if (not sample_data.phased) or gt is None or len(gt) < 2 or any(a is None for a in gt):
+                    continue
                 snp_positions.append(record.pos)
                 genotypes.append(gt)
+
+        if not snp_positions:
+            continue
         
         # Run inference
-        results = engine.run_viterbi(snp_positions, genotypes, get_cm)
-        labels = [
-            "CEU" if state == "CEU_CEU" else "YRI" if state == "YRI_YRI" else "HET"
-            for state in results
-        ]
+        states = engine.run_viterbi(snp_positions, genotypes, get_cm)
         
         # Calculate stats
-        yri_count = labels.count("YRI")
-        ceu_count = labels.count("CEU")
-        het_count = labels.count("HET")
-        total = len(labels)
-        yri_pct = (yri_count / total) * 100
-        ceu_pct = (ceu_count / total) * 100
-        het_pct = (het_count / total) * 100
-        
-        population_data.append({"sample_id": sample_id, "yri_pct": yri_pct, "ceu_pct": ceu_pct, "het_pct": het_pct})
+        yri_yri_count = states.count("YRI_YRI")
+        yri_ceu_count = states.count("YRI_CEU")
+        ceu_yri_count = states.count("CEU_YRI")
+        ceu_ceu_count = states.count("CEU_CEU")
+        total = len(states)
+
+        yri_pct = (yri_yri_count / total) * 100
+        ceu_pct = (ceu_ceu_count / total) * 100
+        yri_ceu_pct = (yri_ceu_count / total) * 100
+        ceu_yri_pct = (ceu_yri_count / total) * 100
+        het_pct = ((yri_ceu_count + ceu_yri_count) / total) * 100
+
+        population_data.append(
+            {
+                "sample_id": sample_id,
+                "yri_pct": yri_pct,
+                "ceu_pct": ceu_pct,
+                "yri_ceu_pct": yri_ceu_pct,
+                "ceu_yri_pct": ceu_yri_pct,
+                "het_pct": het_pct,
+            }
+        )
         
         if i % 10 == 0:
             print(f"    Progress: {i}/{len(asw_samples)} samples completed...")

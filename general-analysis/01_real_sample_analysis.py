@@ -70,10 +70,16 @@ def main():
         
         for record in vcf:
             if record.pos in common_set:
-                # This line now gets a single string (sample_id)
-                gt = record.samples[sample_id].allele_indices
+                sample_data = record.samples[sample_id]
+                gt = sample_data.allele_indices
+                if (not sample_data.phased) or gt is None or len(gt) < 2 or any(a is None for a in gt):
+                    continue
                 snp_positions.append(record.pos)
                 genotypes.append(gt)
+
+        if not snp_positions:
+            print("    Warning: no phased SNPs available for this sample; skipping")
+            continue
 
         # 4. Run Inference
         emissions = EmissionModel(yri_freqs, ceu_freqs)
@@ -81,21 +87,24 @@ def main():
         engine = InferenceEngine(emissions, transitions)
         
         get_cm = lambda x: interpolate_genetic_position(x, phys, gen)
-        results = engine.run_viterbi(snp_positions, genotypes, get_cm)
-        labels = [
-            "CEU" if state == "CEU_CEU" else "YRI" if state == "YRI_YRI" else "HET"
-            for state in results
-        ]
+        states = engine.run_viterbi(snp_positions, genotypes, get_cm)
         
         # 5. Global Stats
-        total = len(labels)
-        yri_pct = (labels.count("YRI") / total) * 100
-        ceu_pct = (labels.count("CEU") / total) * 100
-        het_pct = (labels.count("HET") / total) * 100
-        print(f"    Summary: {yri_pct:.1f}% YRI | {ceu_pct:.1f}% CEU | {het_pct:.1f}% HET")
+        total = len(states)
+        yri_yri_pct = (states.count("YRI_YRI") / total) * 100
+        yri_ceu_pct = (states.count("YRI_CEU") / total) * 100
+        ceu_yri_pct = (states.count("CEU_YRI") / total) * 100
+        ceu_ceu_pct = (states.count("CEU_CEU") / total) * 100
+        print(
+            "    Summary: "
+            f"{yri_yri_pct:.1f}% YRI_YRI | "
+            f"{yri_ceu_pct:.1f}% YRI_CEU | "
+            f"{ceu_yri_pct:.1f}% CEU_YRI | "
+            f"{ceu_ceu_pct:.1f}% CEU_CEU"
+        )
 
         # 6. Visualize - ensure unique filename per sample!
-        plot_ancestry(snp_positions, labels, save_path=OUTPUT_DIR / f"ancestry_{sample_id}.png")
+        plot_ancestry(snp_positions, states, save_path=OUTPUT_DIR / f"ancestry_{sample_id}.png")
 
 if __name__ == "__main__":
     main()

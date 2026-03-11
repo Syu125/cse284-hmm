@@ -26,6 +26,7 @@ from hmm.viterbi import InferenceEngine
 STATE_TO_LABEL = {
     "CEU_CEU": "CEU",
     "CEU_YRI": "HET",
+    "YRI_CEU": "HET",
     "YRI_YRI": "YRI",
 }
 
@@ -128,8 +129,16 @@ def main() -> None:
 
         for record in records:
             if record.pos in valid_set:
+                sample_data = record.samples[sample_id]
+                gt = sample_data.allele_indices
+                if (not sample_data.phased) or gt is None or len(gt) < 2 or any(a is None for a in gt):
+                    continue
                 snp_positions.append(record.pos)
-                genotypes.append(record.samples[sample_id].allele_indices)
+                genotypes.append(gt)
+
+        if not snp_positions:
+            print(f"Skipped {sample_id}: no phased SNPs available")
+            continue
 
         get_cm = lambda position: interpolate_genetic_position(position, phys, gen)
         states = engine.run_viterbi(snp_positions, genotypes, get_cm)
@@ -139,9 +148,10 @@ def main() -> None:
             {
                 "sample_id": sample_id,
                 "position": pos,
+                "state": state,
                 "label": label,
             }
-            for pos, label in zip(snp_positions, labels)
+            for pos, state, label in zip(snp_positions, states, labels)
         )
 
         yri_pct = 100.0 * sum(label == "YRI" for label in labels) / len(labels)

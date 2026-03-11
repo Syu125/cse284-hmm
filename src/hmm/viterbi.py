@@ -12,7 +12,7 @@ class InferenceEngine:
     def __init__(self, emission_model, transition_model):
         self.emissions = emission_model
         self.transitions = transition_model
-        self.states = ["CEU_CEU", "CEU_YRI", "YRI_YRI"]
+        self.states = ["CEU_CEU", "CEU_YRI", "YRI_CEU", "YRI_YRI"]
 
     def run_viterbi(self, snp_positions, genotypes, genetic_map_func):
         """
