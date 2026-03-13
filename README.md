@@ -4,7 +4,7 @@ Implementation of a phased Hidden Markov Model for inferring local ancestry usin
 
 ## Quick Start
 
-Before creating the environment, please make sure you have all the necessary system requirements needed to run the following commands. More information can be found [here](docs/SETUP.md).
+Before creating the environment, please make sure you have all the necessary system requirements needed to run the following commands. More information can be found [here](SETUP.md).
 
 ```bash
 # 1. Create conda environment
@@ -97,4 +97,5 @@ I used LLM assistance to help with the following:
 
 
 Viterbi, A. (1967). Error bounds for convolutional codes and an asymptotically optimum decoding algorithm. *IEEE Transactions on Information Theory*.
+
 
