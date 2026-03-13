@@ -121,7 +121,3 @@ For faster analysis, set cache directory:
 export HMM_CACHE_DIR="$(pwd)/data/cache"
 ```
 
-## Next Steps
-
-1. Read [USAGE.md](USAGE.md) to run analyses
-2. Check [DATA_GUIDE.md](DATA_GUIDE.md) for file descriptions
