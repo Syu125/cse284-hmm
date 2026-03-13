@@ -71,7 +71,8 @@ def main():
     workspace_root = Path(__file__).parent.parent.parent
     panel_path = workspace_root / 'data' / 'raw' / 'panels' / 'integrated_call_samples_v3.20130502.ALL.panel'
     input_vcf = workspace_root / 'data' / 'processed' / 'chr22_slice.vcf.gz'
-    output_dir = Path(__file__).parent / 'data'
+    # Write prepared files under benchmark/data (not benchmark/scripts/data)
+    output_dir = Path(__file__).parent.parent / 'data'
     
     output_dir.mkdir(parents=True, exist_ok=True)
     

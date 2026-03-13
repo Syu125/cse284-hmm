@@ -4,14 +4,41 @@ This folder contains tools and results for evaluating and comparing the HMM mode
 
 ## Prepping the Benchmark
 
-### First, let's prepare the benchmark data
-
-The benchmark is now configured to evaluate methods in a haplotype-consistent way:
+The benchmark is configured to evaluate methods in a haplotype-consistent way:
 - The HMM runs as a single-haplotype `K`-state model (`K=2`: `CEU`, `YRI`) on both phased haplotypes.
 - FLARE and RFMix outputs are converted to per-SNP predictions with explicit haplotype columns (`hap1_state`, `hap2_state`).
 - Sweep comparisons run in haplotype mode (`CEU,YRI` labels), so all method pairs are evaluated in the same state space.
 
 Below are the setup, run steps, and latest results.
+
+## Install Prerequisites
+
+`run_benchmark.sh` assumes these tools are already available:
+- `java` (for FLARE)
+- `rfmix` (CLI on `PATH`)
+- `bcftools` and `tabix`
+
+Example setup in a conda environment:
+
+```bash
+conda activate hmm_env
+conda install -c conda-forge openjdk -y
+conda install -c bioconda rfmix bcftools tabix -y
+```
+
+Download FLARE jar into `benchmark/`:
+
+```bash
+wget https://faculty.washington.edu/browning/flare.jar -O benchmark/flare.jar
+```
+
+Quick checks:
+
+```bash
+java -version
+rfmix --help
+test -f benchmark/flare.jar && echo "FLARE jar found"
+```
 
 ## Running the Benchmark
 
