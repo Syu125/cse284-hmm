@@ -141,18 +141,3 @@ Performance from `benchmark/plots/benchmark_performance_latest.csv`:
 
 - Runtime ranking (fastest to slowest): `flare`, `hmm`, `rfmix`.
 - Memory ranking (lowest to highest): `hmm`, `flare`, `rfmix`.
-
-## Folder Structure
-
-```
-benchmark/
-├── BENCHMARK.md                   # Benchmark writeup and usage
-├── run_benchmark.sh               # Single benchmark entrypoint
-├── scripts/                       # Benchmark Python scripts
-├── predictions/                   # Method predictions (HMM, FLARE, and RFMix)
-├── results/                       # Raw outputs and comparison files
-├── plots/                         # Formatted benchmark plots/tables
-├── data/
-└── flare.jar
-```
-
