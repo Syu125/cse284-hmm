@@ -75,9 +75,7 @@ cse284-hmm/
 ├── src/                             # HMM Implementation
 │   ├── data/                      # VCF parsing and frequency calculation
 │   ├── hmm/                       # Core algorithm (emission, transition, viterbi)
-│   ├── visualization/             # Ancestry painting plots
-│   ├── tests/                     # Unit tests
-│   └── utils.py                   # Caching utilities for larger datasets
+│   └── visualization/             # Ancestry painting plots
 
 ├── .gitignore                     # Includes the large data files
 ├── environment.yml                # Necessary libraries to install in environment
