@@ -51,35 +51,35 @@ This project is applied to a **public dataset** from the **1000 Genomes Project*
 
 ```
 cse284-hmm/
-├── benchmark/                   # HMM vs RFMix/FLARE benchmarking
-│   ├── predictions/
-│   ├── results/
-│   ├── BENCHMARK.md            # Benchmark runner usage and latest results
-│   ├── run_benchmark.sh         # Single benchmark entrypoint
-│   └── scripts/                 # Benchmark python scripts
-
-├── data/                           # Data management
+├── benchmark/                  	 # HMM vs RFMix/FLARE benchmarking
+│   ├── data/					   # Data needed for benchmark
+│   ├── plots/					   # Benchmark comparison plots
+│   ├── predictions/			   # Outputs from each of the three tools
+│   ├── results/				   # Benchmark results
+│   ├── scripts/				   # All scripts involved in benchmark pipeline
+│   ├── BENCHMARK.md               # Benchmark run directions and result analysis
+│   └── run_benchmark.sh           # Script to run full benchmark pipeline
+|
+├── data/                     		 # Data management
 │   ├── cache/                     # Auto-generated frequency caches
 │   ├── processed/                 # Sliced/preprocessed data
 │   ├── raw/                       # Original 1000 Genomes files
-│   └── prepare_data.sh            # Consolidated download & prep script
+│   └── prepare_data.sh            # Full data download & prep script
 │
-├── docs/                            # Documentation
-│   └── SETUP.md                   # How to setup environment and download data
-│
-├── general-analysis/                # Analysis workflows on real ASW samples
+├── general-analysis/                # Sanity check workflows on real ASW samples
 │   ├── output/                    # Output folder for analysis scripts
 │   ├── 01_real_sample_analysis.py # Per-sample haplotype ancestry inference
 │   └── 02_population_analysis.py  # Population-level ancestry summaries
 │
 ├── src/                             # HMM Implementation
 │   ├── data/                      # VCF parsing and frequency calculation
-│   ├── hmm/                       # Core algorithm (emission, transition, viterbi)
+│   ├── hmm/                       # HMM components (emission, transition, viterbi)
 │   └── visualization/             # Ancestry painting plots
-
-├── .gitignore                     # Includes the large data files
+|
+├── .gitignore                     	 # Includes the large data files
 ├── environment.yml                # Necessary libraries to install in environment
-└── README.md                      # This
+├── README.md                      # Overview of the project
+└── SETUP.md                   	   # Instructions for system and environment setup
 ```
 
 ## LLM Usage
@@ -97,3 +97,4 @@ I used LLM assistance to help with the following:
 
 
 Viterbi, A. (1967). Error bounds for convolutional codes and an asymptotically optimum decoding algorithm. *IEEE Transactions on Information Theory*.
+
