@@ -121,7 +121,7 @@ Kappa:
 - Stability: std for concordance and kappa shrinks notably at `N=50`.
 
 ### Runtime And Memory Comparison (Latest Run)
-
+_Note: I performed the benchmark on my PC, so performance is a lot faster than normal computers and Datahub._
 <p align="center">
 	<img src="plots/benchmark_runtime_comparison.png" alt="Method Runtime Comparison" width="49%" />
 	<img src="plots/benchmark_memory_comparison.png" alt="Method Memory Comparison" width="49%" />
@@ -155,3 +155,4 @@ benchmark/
 ├── data/
 └── flare.jar
 ```
+
